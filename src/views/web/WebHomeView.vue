@@ -11,7 +11,7 @@
             <!--          <a-breadcrumb-item>礼物贴图抓取</a-breadcrumb-item>-->
           </a-breadcrumb>
           <div :style="{ padding: '24px', background: '#fff', minHeight: contentHeight ,minWidth: '824px'}">
-
+            <RouterView/>
           </div>
         </a-layout-content>
 

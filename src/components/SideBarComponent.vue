@@ -14,7 +14,7 @@
       </a-menu-item>
 
       <a-menu-item key="gift_image">
-        <router-link to="/gift_image">
+        <router-link to="/gift/image_download">
           <pie-chart-outlined/>
           <span>礼物贴图拉取</span>
         </router-link>

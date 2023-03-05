@@ -6,7 +6,12 @@ const router = createRouter({
         path: '/',
         alias: '/web',
         name: 'home',
-        component: () => import('@/views/web/WebHomeView.vue')
+        component: () => import('@/views/web/WebHomeView.vue'),
+        children: [{
+            path: 'gift/image_download',
+            name: 'imageDownload',
+            component: () => import('@/views/web/gift/NewImgDownloadView.vue')
+        }]
     },]
 })
 
