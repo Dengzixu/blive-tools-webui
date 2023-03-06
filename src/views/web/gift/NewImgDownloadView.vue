@@ -41,12 +41,12 @@
       <template v-if="column.dataIndex === 'coin_type'">
         <a-tag color="gold" v-if="text === 'gold'">
           <template #icon>
-            <img alt="电池" src="/电池.png" style="margin-top: -5px;width: 16px;">
+            <img alt="电池" src="/img/电池.png" style="margin-top: -5px;width: 16px;">
           </template>
           电池
         </a-tag>
         <a-tag color="" v-else-if="text === 'silver'">
-          <img alt="银瓜子" src="/银瓜子.svg" style="margin-top: -5px;width: 16px;">
+          <img alt="银瓜子" src="/img/银瓜子.svg" style="margin-top: -5px;width: 16px;">
           银瓜子
         </a-tag>
       </template>
