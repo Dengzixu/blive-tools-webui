@@ -10,14 +10,14 @@
                  addon-before="房间号"
                  placeholder="输入要拉取贴图的房间号, 0 代表所有拉取所有贴图"
                  style="width: 80%"/>
-        <a-button type="primary" @click="handlePullImage">拉取</a-button>
+        <a-button type="primary" @click="handlePullImage" :loading="onLoading">拉取</a-button>
       </a-input-group>
     </a-col>
   </a-row>
 
   <a-divider/>
   <div style="margin-bottom: 16px;">
-    <a-button type="primary" @click="handleDownloadAll(giftList.list)">
+    <a-button type="primary" @click="handleDownloadAll(giftList.list)" :disabled="giftList.list.length<=0">
       <DownloadOutlined/>
       下载所有
     </a-button>
@@ -124,6 +124,8 @@ export default {
         width: '200px'
       }];
 
+    const onLoading = ref(false);
+
     const roomID = ref(0);
     let giftList = reactive({
       list: [],
@@ -138,6 +140,9 @@ export default {
       // 清空原始列表
       giftList.list = [];
       giftList.map_all = new Map();
+
+      // 设置 onLoading 状态
+      onLoading.value = true;
 
       // 获取礼物列表
       BLiveAPIProxy.giftConfigProxy().then(r => {
@@ -205,11 +210,15 @@ export default {
 
           });
         }
+        // 设置 onLoading 状态
+        onLoading.value = false;
       }).catch(e => {
         Modal.error({
           title: '请求失败',
           content: e.response ? e.response : '网络错误',
         });
+        // 设置 onLoading 状态
+        onLoading.value = false;
       });
 
     }
@@ -230,7 +239,8 @@ export default {
           title: '请求失败',
           content: e.response ? e.response : '网络错误',
         });
-      });;
+      });
+      ;
 
     }
 
@@ -269,6 +279,7 @@ export default {
 
     return {
       columns,
+      onLoading,
       roomID,
       giftList,
       handlePullImage,
