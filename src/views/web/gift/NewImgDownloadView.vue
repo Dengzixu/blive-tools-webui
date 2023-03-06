@@ -146,7 +146,6 @@ export default {
 
         // 原始礼物列表
         const originalGiftList = responseBody['data']['list'];
-        console.log(originalGiftList);
 
         // Gift Map
         const giftMap = new Map();
@@ -154,17 +153,12 @@ export default {
           giftMap.set(gift['id'], gift);
         });
 
-        console.log(giftMap);
-
         giftList.map_all = giftMap;
-
-        console.log(typeof roomID.value)
 
         if (Number(roomID.value) === 0) {
           giftList.list = originalGiftList;
         } else {
           // 过滤房间数据
-
           // 获取房间礼物列表
           BLiveAPIProxy.giftDataProxy(roomID.value).then(r => {
             const responseBody = r.data;
@@ -173,10 +167,8 @@ export default {
 
             // 礼物大列表
             const data = responseBody['data'];
-            console.log(data);
 
             // 获取金瓜子 (电池) 礼物 ['room_gift_list']['gold_list']
-            console.log(data['room_gift_list']['gold_list']);
             data['room_gift_list']['gold_list'].forEach(i => {
               roomGiftIDList.push(i['gift_id']);
               // 金瓜子礼物可能包含可升级礼物，要对这部分进行处理
@@ -188,13 +180,11 @@ export default {
             });
 
             // 获取银瓜子礼物 ['room_gift_list']['silver_list']
-            console.log(data['room_gift_list']['silver_list']);
             data['room_gift_list']['silver_list'].forEach(i => {
               roomGiftIDList.push(i['gift_id']);
             });
 
             // 获取特定标签下的礼物列表 ['tab_list']
-            console.log(data['tab_list'])
             // 先遍历有多少个 tab
             data['tab_list'].forEach(i => {
               // 获取当前标签下礼物列表
@@ -204,7 +194,6 @@ export default {
             });
 
             // 获取特殊礼物 ['special_show_gift']
-            console.log(data['special_show_gift'])
             data['special_show_gift'].forEach(i => {
               roomGiftIDList.push(i['gift_id']);
             });
@@ -216,27 +205,32 @@ export default {
 
           });
         }
+      }).catch(e => {
+        Modal.error({
+          title: '请求失败',
+          content: e.response ? e.response : '网络错误',
+        });
       });
 
     }
 
     const handleSelectedChange = selectedRowKeys => {
-      console.log('selectedRowKeys changed: ', selectedRowKeys);
       state.selectedRowKeys = selectedRowKeys;
     };
 
     const handleTableDownload = giftID => {
-      console.log(giftList.map_all.get(giftID));
-
       axios({
         url: giftList.map_all.get(giftID)['img_basic'],
         method: "get",
         responseType: 'blob'
       }).then(r => {
-
         FileUtils.saveBlob(giftList.map_all.get(giftID)['name'] + '.png', r.data).then()
-
-      });
+      }).catch(e => {
+        Modal.error({
+          title: '请求失败',
+          content: e.response ? e.response : '网络错误',
+        });
+      });;
 
     }
 
@@ -268,7 +262,7 @@ export default {
 
       Promise.all(promiseList).then(() => {
         zipFile.generateAsync({type: "blob"}).then(content => {
-          FileUtils.saveBlob('贴图.zip',content)
+          FileUtils.saveBlob('贴图.zip', content);
         })
       });
     }
