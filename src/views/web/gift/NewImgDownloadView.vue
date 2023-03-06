@@ -61,11 +61,17 @@
       </template>
 
       <template v-if="column.key === 'operate'">
-        <a-button type="primary" size="small" @click="handleTableDownload(record['id'])">
+        <a-button type="primary" size="small" @click="handleTableDownload(record['id'])" style="margin-right: 10px">
           <template #icon>
             <DownloadOutlined/>
           </template>
           下载
+        </a-button>
+
+        <a-button type="" size="small" @click="handleRAWInfo(record['id'])">
+          <template #icon>
+          </template>
+          礼物信息 (RAW)
         </a-button>
       </template>
 
@@ -78,7 +84,7 @@
 </template>
 
 <script>
-import {reactive, ref, toRefs} from "vue";
+import {reactive, ref, toRefs, unref} from "vue";
 import {Modal} from "ant-design-vue";
 import {DownloadOutlined, SettingOutlined} from '@ant-design/icons-vue'
 
@@ -121,7 +127,7 @@ export default {
       }, {
         title: '操作',
         key: 'operate',
-        width: '200px'
+        width: '300px'
       }];
 
     const onLoading = ref(false);
@@ -244,6 +250,16 @@ export default {
 
     }
 
+    const handleRAWInfo = giftID => {
+
+
+      Modal.info({
+        title: '礼物信息',
+        content: JSON.stringify(giftList.map_all.get(giftID)),
+        width: '1000px'
+      })
+    }
+
     const handleDownloadAll = (list) => {
       if (list.length === 0) {
         Modal.error({title: '贴图下载失败', content: '请先拉取贴图'});
@@ -285,6 +301,7 @@ export default {
       handlePullImage,
       handleSelectedChange,
       handleTableDownload,
+      handleRAWInfo,
       handleDownloadAll,
       ...toRefs(state)
     }
