@@ -3,7 +3,8 @@ import axios from "axios";
 export default {
     giftConfigProxy() {
         return axios({
-            url: "http://localhost:25501/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftConfig",
+            url: "/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftConfig",
+            baseURL: import.meta.env.VITE_PROXY_URL,
             method: "get",
             params: {
                 "platform": "pc"
@@ -12,7 +13,8 @@ export default {
     },
     giftDataProxy(roomID = 0) {
         return axios({
-            url: "http://localhost:25501/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftData",
+            url: "/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftData",
+            baseURL: import.meta.env.VITE_PROXY_URL,
             method: "get",
             params: {
                 "platform": "pc",
