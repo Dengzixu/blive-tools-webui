@@ -1,5 +1,5 @@
 <template>
-  <a-typography-title>礼物贴图</a-typography-title>
+  <a-typography-title :level="3">礼物贴图拉取</a-typography-title>
 
   <a-divider/>
 
@@ -7,10 +7,12 @@
     <a-col :span="10">
       <a-input-group compact>
         <a-input v-model:value="roomID"
-                 addon-before="房间号"
+                 addon-before="房间 ID"
                  placeholder="输入要拉取贴图的房间号, 0 代表所有拉取所有贴图"
                  style="width: 80%"/>
-        <a-button type="primary" @click="handlePullImage" :loading="onLoading">拉取</a-button>
+        <a-button type="primary" @click="handlePullImage" :loading="onLoading" :disabled="roomID === ''">拉取</a-button>
+        <a-progress :percent="progressPercent" size="small" v-if="progressPercent > 0"
+                    style="width: 90%;margin: 0 auto"/>
       </a-input-group>
     </a-col>
   </a-row>
@@ -68,7 +70,7 @@
           下载
         </a-button>
 
-        <a-button type="" size="small" @click="handleRAWInfo(record['id'])">
+        <a-button size="small" @click="handleRAWInfo(record['id'])">
           <template #icon>
           </template>
           礼物信息 (RAW)
@@ -89,7 +91,6 @@ import {Modal} from "ant-design-vue";
 import {DownloadOutlined, SettingOutlined} from '@ant-design/icons-vue'
 
 import axios from "axios";
-
 import JSZip from "jszip";
 
 import BLiveAPIProxy from "@/api/BLiveAPIProxy";
@@ -130,9 +131,6 @@ export default {
         width: '300px'
       }];
 
-    const onLoading = ref(false);
-
-    const roomID = ref(0);
     let giftList = reactive({
       list: [],
       map_all: new Map(),
@@ -142,16 +140,28 @@ export default {
       selectedRowKeys: [],
     });
 
+    const onLoading = ref(false);
+
+    const progressPercent = ref(0);
+
+    const roomID = ref('');
+
+    /**
+     * 处理拉取贴图
+     */
     const handlePullImage = () => {
       // 清空原始列表
       giftList.list = [];
       giftList.map_all = new Map();
 
+      // 清空进度条
+      progressPercent.value = 0
+
       // 设置 onLoading 状态
       onLoading.value = true;
 
       // 获取礼物列表
-      BLiveAPIProxy.giftConfigProxy().then(r => {
+      BLiveAPIProxy.giftConfigProxy(progressPercent).then(r => {
         // Response Body
         const responseBody = r.data;
 
@@ -229,10 +239,16 @@ export default {
 
     }
 
+    /**
+     * 处理表单选中项
+     */
     const handleSelectedChange = selectedRowKeys => {
       state.selectedRowKeys = selectedRowKeys;
     };
 
+    /**
+     * 处理表单中下载按钮事件
+     */
     const handleTableDownload = giftID => {
       axios({
         url: giftList.map_all.get(giftID)['img_basic'],
@@ -246,18 +262,18 @@ export default {
           content: e.response ? e.response : '网络错误',
         });
       });
-      ;
-
     }
 
+    /**
+     * 处理显示礼物信息
+     * @param giftID
+     */
     const handleRAWInfo = giftID => {
-
-
       Modal.info({
         title: '礼物信息',
         content: JSON.stringify(giftList.map_all.get(giftID)),
         width: '1000px'
-      })
+      });
     }
 
     const handleDownloadAll = (list) => {
@@ -289,15 +305,16 @@ export default {
       Promise.all(promiseList).then(() => {
         zipFile.generateAsync({type: "blob"}).then(content => {
           FileUtils.saveBlob('贴图.zip', content);
-        })
+        });
       });
     }
 
     return {
       columns,
-      onLoading,
-      roomID,
       giftList,
+      onLoading,
+      progressPercent,
+      roomID,
       handlePullImage,
       handleSelectedChange,
       handleTableDownload,
