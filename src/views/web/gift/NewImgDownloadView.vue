@@ -5,21 +5,62 @@
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-input-group compact>
-        <a-input v-model:value="roomID"
-                 addon-before="房间 ID"
-                 placeholder="输入要拉取贴图的房间号, 0 代表所有拉取所有贴图"
-                 style="width: 80%"/>
-        <a-button type="primary" @click="handlePullImage" :loading="onLoading" :disabled="roomID === ''">拉取</a-button>
-        <a-progress :percent="progressPercent" size="small" v-if="progressPercent > 0"
-                    style="width: 90%;margin: 0 auto"/>
-      </a-input-group>
+
+      <!--      <a-input-group compact>-->
+      <!--        <a-input v-model:value="roomID"-->
+      <!--                 addon-before="房间 ID"-->
+      <!--                 placeholder="输入要拉取贴图的房间号, 0 代表所有拉取所有贴图"-->
+      <!--                 style="width: 80%"/>-->
+      <!--        <a-button type="primary" @click="handlePullImage" :loading="onLoading" :disabled="roomID === ''">拉取</a-button>-->
+      <!--        <a-progress :percent="progressPercent" size="small" v-if="progressPercent > 0"-->
+      <!--                    style="width: 90%;margin: 0 auto"/>-->
+      <!--      </a-input-group>-->
+
+      <a-form :wrapper-col="{ span: 20}" :label-col="{ span: 2 }">
+
+        <a-form-item label="直播间">
+          <a-radio-group v-model:value="filter.all">
+            <a-radio :value="true">所有直播间</a-radio>
+            <a-radio :value="false">
+              指定直播间 ID
+              <a-input v-model:value="roomID" style="width: 50%; margin-left: 10px" :disabled="filter.all"/>
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+
+        <a-form-item label="类型">
+          <a-checkbox v-model:checked="filter.coin_type.gold">电池</a-checkbox>
+          <a-checkbox v-model:checked="filter.coin_type.silver">银瓜子</a-checkbox>
+        </a-form-item>
+
+        <a-form-item label="礼物分区">
+          <a-select v-model:value="filter.corner_mark_list" :options="giftList.corner_mark_list" mode="multiple">
+          </a-select>
+        </a-form-item>
+
+        <a-form-item label="提示">
+          <span class="ant-form-text">过滤器优先级从上至下，由高变低</span>
+        </a-form-item>
+
+        <a-form-item :wrapper-col="{ span: 20, offset: 2 }">
+          <!--          <a-button type="primary" @click="handlePullImage" :loading="onLoading">拉取</a-button>-->
+          <a-button type="primary" @click="handleFilter">应用筛选</a-button>
+        </a-form-item>
+
+      </a-form>
+
     </a-col>
   </a-row>
 
   <a-divider/>
   <div style="margin-bottom: 16px;">
-    <a-button type="primary" @click="handleDownloadAll(giftList.list)" :disabled="giftList.list.length<=0">
+    <a-button @click="loadGiftData">
+      <RedoOutlined/>
+      刷新数据
+    </a-button>
+
+    <a-button type="primary" @click="handleDownloadAll(giftList.list)" style="margin-left: 10px;"
+              :disabled="giftList.filtered.length<=0">
       <DownloadOutlined/>
       下载所有
     </a-button>
@@ -31,9 +72,10 @@
   </div>
 
   <a-table :columns="columns"
-           :data-source="giftList.list"
+           :data-source="giftList.filtered"
            row-key="id"
-           :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: handleSelectedChange }">
+           :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: handleSelectedChange }"
+           :loading="onLoading">
     <template #bodyCell="{text, record, index, column}">
 
       <template v-if="column.dataIndex === 'img_basic'">
@@ -86,9 +128,9 @@
 </template>
 
 <script>
-import {reactive, ref, toRefs, unref} from "vue";
+import {reactive, ref, toRefs, onBeforeMount} from "vue";
 import {Modal} from "ant-design-vue";
-import {DownloadOutlined, SettingOutlined} from '@ant-design/icons-vue'
+import {DownloadOutlined, SettingOutlined, RedoOutlined} from '@ant-design/icons-vue'
 
 import axios from "axios";
 import JSZip from "jszip";
@@ -100,7 +142,8 @@ export default {
   name: "NewImgDownload",
   components: {
     DownloadOutlined,
-    SettingOutlined
+    SettingOutlined,
+    RedoOutlined
   },
   setup() {
     const columns = [
@@ -131,9 +174,22 @@ export default {
         width: '300px'
       }];
 
+    let filter = reactive({
+      all: true,
+      roomID: 0,
+      coin_type: {
+        gold: true,
+        silver: true
+      },
+      corner_mark_list: [],
+    })
+
     let giftList = reactive({
+      original: [],
+      filtered: [],
       list: [],
       map_all: new Map(),
+      corner_mark_list: [],
     });
 
     const state = reactive({
@@ -145,6 +201,132 @@ export default {
     const progressPercent = ref(0);
 
     const roomID = ref('');
+
+    onBeforeMount(() => {
+      loadGiftData();
+    });
+
+    const loadGiftData = () => {
+      onLoading.value = true;
+
+      BLiveAPIProxy.giftConfigProxy(progressPercent).then(r => {
+        // Response Body
+        const responseBody = r.data;
+
+        // 原始礼物列表
+        giftList.original = responseBody['data']['list'];
+
+
+        const tempCorner_mark_list = [];
+
+        giftList.original.forEach(gift => {
+          // 生成 tempCorner_mark_list
+
+          if (gift['corner_mark'] !== '' && !tempCorner_mark_list.includes(gift['corner_mark'])) {
+            tempCorner_mark_list.push(gift['corner_mark'])
+          }
+
+          // 生成 Gift Map
+          giftList.map_all.set(gift['id'], gift);
+        });
+
+        // 生成 corner_mark_list
+        giftList.corner_mark_list.push({
+          value: '',
+          label: '无'
+        });
+
+        tempCorner_mark_list.forEach(text => {
+          giftList.corner_mark_list.push({
+            value: text,
+            label: text
+          });
+        });
+
+
+        // 设置 filtered list， 默认是没有任何过滤条件
+        giftList.filtered = giftList.original;
+
+        // 设置 onLoading 状态
+        onLoading.value = false;
+      }).catch(e => {
+        Modal.error({
+          title: '请求失败',
+          content: e.response ? e.response : '网络错误',
+        });
+
+        // 设置 onLoading 状态
+        onLoading.value = false;
+      });
+    }
+
+    /**
+     * 应用过滤器
+     */
+    const handleFilter = () => {
+      giftList.filtered = giftList.original;
+
+      // 这部分处理 room 过滤器
+      if (!filter.all) {
+        BLiveAPIProxy.giftDataProxy(Number(roomID.value)).then(r => {
+          const responseBody = r.data;
+
+          let roomGiftIDList = [];
+
+          // 礼物大列表
+          const data = responseBody['data'];
+
+          // 获取金瓜子 (电池) 礼物 ['room_gift_list']['gold_list']
+          data['room_gift_list']['gold_list'].forEach(i => {
+            roomGiftIDList.push(i['gift_id']);
+            // 金瓜子礼物可能包含可升级礼物，要对这部分进行处理
+            if (i['upgrade_gift']) {
+              i['upgrade_gift'].forEach(j => {
+                roomGiftIDList.push(j['gift_id']);
+              });
+            }
+          });
+
+          // 获取银瓜子礼物 ['room_gift_list']['silver_list']
+          data['room_gift_list']['silver_list'].forEach(i => {
+            roomGiftIDList.push(i['gift_id']);
+          });
+
+          // 获取特定标签下的礼物列表 ['tab_list']
+          // 先遍历有多少个 tab
+          data['tab_list'].forEach(i => {
+            // 获取当前标签下礼物列表
+            i['list'].forEach(j => {
+              roomGiftIDList.push(j['gift_id']);
+            });
+          });
+
+          // 获取特殊礼物 ['special_show_gift']
+          data['special_show_gift'].forEach(i => {
+            roomGiftIDList.push(i['gift_id']);
+          });
+
+          // 应用过滤器
+          giftList.filtered = giftList.filtered.filter(item => roomGiftIDList.includes(item['id']));
+
+        })
+      }
+
+      // 这部分处理 coin_type
+      // 如果都选中了，还过滤啥？
+      if (!(filter.coin_type.gold && filter.coin_type.silver)) {
+        if (filter.coin_type.gold) {
+          giftList.filtered = giftList.filtered.filter(item => String(item['coin_type']) === 'gold');
+        } else if (filter.coin_type.silver) {
+          giftList.filtered = giftList.filtered.filter(item => String(item['coin_type']) === 'silver');
+        }
+      }
+
+      // 这部分处理 corner_mark_list 过滤器
+      if (filter.corner_mark_list.length > 0) {
+        giftList.filtered = giftList.filtered.filter(item => filter.corner_mark_list.includes(item['corner_mark']));
+      }
+    }
 
     /**
      * 处理拉取贴图
@@ -176,12 +358,13 @@ export default {
 
         giftList.map_all = giftMap;
 
-        if (Number(roomID.value) === 0) {
+        // if (Number(roomID.value) === 0) {
+        if (filter.all) {
           giftList.list = originalGiftList;
         } else {
           // 过滤房间数据
           // 获取房间礼物列表
-          BLiveAPIProxy.giftDataProxy(roomID.value).then(r => {
+          BLiveAPIProxy.giftDataProxy(Number(roomID.value)).then(r => {
             const responseBody = r.data;
 
             let roomGiftIDList = [];
@@ -311,10 +494,13 @@ export default {
 
     return {
       columns,
+      filter,
       giftList,
       onLoading,
       progressPercent,
       roomID,
+      handleFilter,
+      loadGiftData,
       handlePullImage,
       handleSelectedChange,
       handleTableDownload,
