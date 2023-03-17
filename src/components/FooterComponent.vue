@@ -3,14 +3,22 @@
     <a-typography-text>Powered by
       <a href="https://cn.vuejs.org/" target="_blank">Vue.js</a> &
       <a href="https://www.antdv.com/" target="_blank">Ant Design Vue </a> |
-      Copyleft 🄯 too_long_name
+      By <a href="https://github.com/Dengzixu" target="_blank">too_long_name</a> |
+      <a href="https://github.com/Dengzixu/blive-tools-webui" target="_blank">
+        <GithubOutlined/>
+        blive-tools-webui</a>
     </a-typography-text>
   </a-layout-footer>
 </template>
 
 <script>
+import {GithubOutlined} from "@ant-design/icons-vue";
+
 export default {
-  name: "FooterComponent"
+  name: "FooterComponent",
+  components: {
+    GithubOutlined
+  }
 }
 </script>
 
