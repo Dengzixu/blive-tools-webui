@@ -25,5 +25,15 @@ export default {
                 "room_id": roomID
             }
         });
+    },
+    getWebAreaListProxy() {
+        return axios({
+            url: "/proxy/https://api.live.bilibili.com/xlive/web-interface/v1/index/getWebAreaList",
+            baseURL: import.meta.env.VITE_PROXY_URL,
+            method: "get",
+            params: {
+                "source_id": "1"
+            }
+        });
     }
 }
