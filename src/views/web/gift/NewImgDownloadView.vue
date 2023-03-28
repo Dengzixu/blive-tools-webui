@@ -5,17 +5,6 @@
 
   <a-row justify="center">
     <a-col :span="10">
-
-      <!--      <a-input-group compact>-->
-      <!--        <a-input v-model:value="roomID"-->
-      <!--                 addon-before="房间 ID"-->
-      <!--                 placeholder="输入要拉取贴图的房间号, 0 代表所有拉取所有贴图"-->
-      <!--                 style="width: 80%"/>-->
-      <!--        <a-button type="primary" @click="handlePullImage" :loading="onLoading" :disabled="roomID === ''">拉取</a-button>-->
-      <!--        <a-progress :percent="progressPercent" size="small" v-if="progressPercent > 0"-->
-      <!--                    style="width: 90%;margin: 0 auto"/>-->
-      <!--      </a-input-group>-->
-
       <a-form :wrapper-col="{ span: 20}" :label-col="{ span: 2 }">
 
         <a-form-item label="直播间">
@@ -174,7 +163,7 @@ export default {
         width: '300px'
       }];
 
-    let filter = reactive({
+    const filter = reactive({
       all: true,
       roomID: 0,
       coin_type: {
@@ -184,7 +173,7 @@ export default {
       corner_mark_list: [],
     })
 
-    let giftList = reactive({
+    const giftList = reactive({
       original: [],
       filtered: [],
       list: [],
@@ -200,7 +189,7 @@ export default {
 
     const progressPercent = ref(0);
 
-    const roomID = ref('');
+    const roomID = ref(0);
 
     onBeforeMount(() => {
       loadGiftData();
@@ -329,100 +318,6 @@ export default {
     }
 
     /**
-     * 处理拉取贴图
-     */
-    const handlePullImage = () => {
-      // 清空原始列表
-      giftList.list = [];
-      giftList.map_all = new Map();
-
-      // 清空进度条
-      progressPercent.value = 0
-
-      // 设置 onLoading 状态
-      onLoading.value = true;
-
-      // 获取礼物列表
-      BLiveAPIProxy.giftConfigProxy(progressPercent).then(r => {
-        // Response Body
-        const responseBody = r.data;
-
-        // 原始礼物列表
-        const originalGiftList = responseBody['data']['list'];
-
-        // Gift Map
-        const giftMap = new Map();
-        originalGiftList.forEach(gift => {
-          giftMap.set(gift['id'], gift);
-        });
-
-        giftList.map_all = giftMap;
-
-        // if (Number(roomID.value) === 0) {
-        if (filter.all) {
-          giftList.list = originalGiftList;
-        } else {
-          // 过滤房间数据
-          // 获取房间礼物列表
-          BLiveAPIProxy.giftDataProxy(Number(roomID.value)).then(r => {
-            const responseBody = r.data;
-
-            let roomGiftIDList = [];
-
-            // 礼物大列表
-            const data = responseBody['data'];
-
-            // 获取金瓜子 (电池) 礼物 ['room_gift_list']['gold_list']
-            data['room_gift_list']['gold_list'].forEach(i => {
-              roomGiftIDList.push(i['gift_id']);
-              // 金瓜子礼物可能包含可升级礼物，要对这部分进行处理
-              if (i['upgrade_gift']) {
-                i['upgrade_gift'].forEach(j => {
-                  roomGiftIDList.push(j['gift_id']);
-                });
-              }
-            });
-
-            // 获取银瓜子礼物 ['room_gift_list']['silver_list']
-            data['room_gift_list']['silver_list'].forEach(i => {
-              roomGiftIDList.push(i['gift_id']);
-            });
-
-            // 获取特定标签下的礼物列表 ['tab_list']
-            // 先遍历有多少个 tab
-            data['tab_list'].forEach(i => {
-              // 获取当前标签下礼物列表
-              i['list'].forEach(j => {
-                roomGiftIDList.push(j['gift_id']);
-              });
-            });
-
-            // 获取特殊礼物 ['special_show_gift']
-            data['special_show_gift'].forEach(i => {
-              roomGiftIDList.push(i['gift_id']);
-            });
-
-            // 将 ID List 转换成 Gift List
-            roomGiftIDList.forEach(id => {
-              giftList.list.push(giftMap.get(id));
-            });
-
-          });
-        }
-        // 设置 onLoading 状态
-        onLoading.value = false;
-      }).catch(e => {
-        Modal.error({
-          title: '请求失败',
-          content: e.response ? e.response : '网络错误',
-        });
-        // 设置 onLoading 状态
-        onLoading.value = false;
-      });
-
-    }
-
-    /**
      * 处理表单选中项
      */
     const handleSelectedChange = selectedRowKeys => {
@@ -459,6 +354,10 @@ export default {
       });
     }
 
+    /**
+     * 下载所有礼物贴图
+     * @param list
+     */
     const handleDownloadAll = (list) => {
       if (list.length === 0) {
         Modal.error({title: '贴图下载失败', content: '请先拉取贴图'});
@@ -501,7 +400,6 @@ export default {
       roomID,
       handleFilter,
       loadGiftData,
-      handlePullImage,
       handleSelectedChange,
       handleTableDownload,
       handleRAWInfo,
