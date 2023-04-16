@@ -47,7 +47,7 @@
             刷新数据
         </a-button>
 
-        <a-button type="primary" @click="handleDownloadAll(giftList.list)" style="margin-left: 10px;"
+        <a-button type="primary" @click="handleDownloadAll(giftList.filtered)" style="margin-left: 10px;"
                   :disabled="giftList.filtered.length<=0">
             <DownloadOutlined/>
             下载所有
