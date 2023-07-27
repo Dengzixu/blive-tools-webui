@@ -5,7 +5,7 @@
     <a-col :xs="8">
       <div class="gift-image">
         <img class="gift-image"
-             :src="`/img/obs/timer/gift-image/${giftName}.${(giftName==='舰长'||giftName==='提督'||giftName==='总督')?'png':'gif'}`"
+             :src="`${imageServer}/img/obs-plugin/timer/gift-image/${giftName}.${(giftName==='舰长'||giftName==='提督'||giftName==='总督')?'png':'gif'}`"
              alt="礼物图片">
       </div>
     </a-col>
@@ -35,6 +35,7 @@ export default {
     num: Number,
     op: String,
     opValue: Number,
+    imageServer: String
   },
   setup(props) {
     let opString = ref('default String');

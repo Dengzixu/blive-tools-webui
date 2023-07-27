@@ -3,15 +3,14 @@
     <div class="text-left-time">剩余时间</div>
     <div class="text-left-time-clock" @dblclick="handleResetTimer">{{ leftTimeText }}</div>
 
-
     <a-row class="gift-list" justify="center">
-
-
       <a-col :xs="12" v-for="item in config['gift_list']">
-        <GiftItem :gift-name="item['gift_name']" :num="item['num']" :op-value="item['op_value']" :op="item['op']"/>
+        <TimerGiftItem :gift-name="item['gift_name']"
+                       :num="Number(item['num'])"
+                       :op="item['op']"
+                       :op-value="Number(item['op_value'])"
+                       :image-server="config['image_server']"/>
       </a-col>
-
-
     </a-row>
 
     <div class="text-send">{{ sendMessageText }}</div>
@@ -21,11 +20,12 @@
 
 
 <script>
-import {ref, onBeforeMount} from "vue";
+import {ref, onBeforeMount, onMounted} from "vue";
+import {useRoute} from 'vue-router'
+import {message} from 'ant-design-vue';
+import {Base64} from 'js-base64';
 
-import GiftItem from "@/components/obs/timer/TimerGiftItem.vue";
-import Base64 from 'crypto-js/enc-base64';
-import Utf8 from 'crypto-js/enc-utf8'
+import TimerGiftItem from "@/components/obs/timer/TimerGiftItem.vue";
 
 import Timer from "@/js/obs/timer/Timer";
 import Websocket from "@/utils/Websocket";
@@ -33,86 +33,91 @@ import Websocket from "@/utils/Websocket";
 export default {
   name: "TimerFrame",
   components: {
-    GiftItem
+    TimerGiftItem,
   },
   setup() {
-    const configString = 'eyJpbml0X3RpbWUiOjcyMDAsImdpZnRfbGlzdCI6W3siZ2lmdF9uYW1lIjoi5bCP6Iqx6IqxIiwibnVtIjoxLCJvcCI' +
-      '6IlRJTUVfQUREIiwib3BfdmFsdWUiOjYwfSx7ImdpZnRfbmFtZSI6IueJm+WTh+eJm+WThyIsIm51bSI6NSwib3AiOiJUSU1FX1NVQiIsIm9wX' +
-      '3ZhbHVlIjozNjB9LHsiZ2lmdF9uYW1lIjoi5omTY2FsbCIsIm51bSI6MSwib3AiOiJUSU1FX01DTCIsIm9wX3ZhbHVlIjoyfSx7ImdpZnRfbmF' +
-      'tZSI6IuS6uuawlOelqCIsIm51bSI6Miwib3AiOiJUSU1FX0RJViIsIm9wX3ZhbHVlIjoyfSx7ImdpZnRfbmFtZSI6IuiIsOmVvyIsIm51bSI6M' +
-      'Swib3AiOiJUSU1FX1pFUk8iLCJvcF92YWx1ZSI6MH1dfQ==';
+    const route = useRoute();
 
-    const configList = JSON.parse(Base64.parse(configString).toString(Utf8))
+    const config = JSON.parse(Base64.decode(route.query.config.toString()))
+    console.log('加载配置文件:\n' + JSON.stringify(config));
 
     let giftConfigMap = new Map();
 
-    const leftTimeText = ref('正在初始化...');
+    const leftTimeText = ref('正在初始化……');
     const sendMessageText = ref('等待投喂中……');
 
     onBeforeMount(() => {
-      Timer.initializeTimer(configList['init_time'], false);
+      if (config.gift_list.length <= 0) {
+        throw "配置文件不正确";
+      }
+    });
 
-      configList['gift_list'].forEach(item => {
+    onMounted(() => {
+      Timer.initializeTimer(config['init_time'], false);
+
+      config['gift_list'].forEach(item => {
         giftConfigMap.set(item['gift_name'], item);
       });
 
-      Websocket.connect((message) => {
-        let convertGiftName = '';
+      // 创建 WebSocket 链接
+      try {
+        Websocket.connect(config.websocket_server, (message) => {
+          let convertGiftName = '';
 
-        // 处理礼物
-        if (message['message'] === 'SEND_GIFT') {
-          convertGiftName = message['content']['giftName'];
-        }
-
-        // 处理上舰
-        if (message['message'] === 'GUARD_BUY') {
-          // 由于购买舰长是另一个消息类型，所以需要单独处理
-          switch (message['content']['guardLevel']) {
-            case 1:
-              convertGiftName = "总督";
-              break;
-            case 2:
-              convertGiftName = "提督";
-              break;
-            case 3:
-              convertGiftName = "舰长";
-              break;
+          // 处理礼物
+          if (message['message'] === 'SEND_GIFT') {
+            convertGiftName = message['content']['giftName'];
           }
 
-        }
+          // 处理上舰
+          if (message['message'] === 'GUARD_BUY') {
+            // 由于购买舰长是另一个消息类型，所以需要单独处理
+            switch (message['content']['guardLevel']) {
+              case 1:
+                convertGiftName = "总督";
+                break;
+              case 2:
+                convertGiftName = "提督";
+                break;
+              case 3:
+                convertGiftName = "舰长";
+                break;
+            }
+          }
 
+          // 判断礼物是否在礼物列表里
+          if (giftConfigMap.has(convertGiftName)) {
+            let config = giftConfigMap.get(convertGiftName);
 
-        if (giftConfigMap.has(convertGiftName)) {
-          let config = giftConfigMap.get(convertGiftName);
+            let newOpValue = config['op_value'] * Math.round(message['content']['num'] / config['num']);
 
-          let newOpValue = config['op_value'] * Math.round(message['content']['num'] / config['num']);
+            Timer.modifyTime(config['op'], newOpValue);
 
-          Timer.modifyTime(config['op'], newOpValue);
-
-          sendMessageText.value = `感谢 ${message['userMetadata']['username']} 赠送 ${convertGiftName} x ${message['content']['num']}`
-        }
-      })
-
+            sendMessageText.value = `感谢 ${message['userMetadata']['username']} 赠送 ${convertGiftName} x ${message['content']['num']}`
+          }
+        })
+      } catch (e) {
+        message.error('无法连接至服务器，请刷新再试', 0)
+      }
     });
 
     const intervel = setInterval(() => {
       leftTimeText.value = Timer.getLeftTime() > 0 ? Timer.format(Timer.getLeftTime()) : '任务完成';
     }, 1000)
 
-
+    // 处理重置时间
     const handleResetTimer = () => {
-      Timer.initializeTimer(configList['init_time'], true);
+      Timer.initializeTimer(config['init_time'], true);
     }
 
     return {
-      config: configList,
+      config: config,
       leftTimeText,
       sendMessageText,
       handleResetTimer
     }
 
   }
-
 
 }
 </script>

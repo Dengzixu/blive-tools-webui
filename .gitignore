@@ -1,5 +1,5 @@
-public/img/obs/timer/gift-image/*.gif
-public/img/obs/timer/gift-image/*.png
+public/img/obs-plugin/timer/gift-image/*.gif
+public/img/obs-plugin/timer/gift-image/*.png
 
 # Logs
 logs

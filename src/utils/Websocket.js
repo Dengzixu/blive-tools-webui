@@ -1,14 +1,19 @@
 export default {
-    connect(wsCallback) {
+    connect(wsServer, wsCallback) {
         if ("WebSocket" in window) {
-            const ws = new WebSocket("ws://localhost:25501/server"); //创建WebSocket连接
+            const ws = new WebSocket(wsServer); //创建WebSocket连接
 
             ws.onmessage = (event) => {
                 wsCallback(JSON.parse(event.data));
-            }
+            };
+
+            ws.onerror = ((event) => {
+                console.log("WS error:" + event);
+                throw "无法连接至服务器"
+            });
 
         } else {
-            console.log("您的浏览器不支持WebSocket");
+            throw "您的浏览器不支持 WebSocket";
         }
     }
 
