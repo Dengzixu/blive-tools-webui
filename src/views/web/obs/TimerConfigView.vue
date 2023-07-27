@@ -102,8 +102,8 @@ export default {
     }];
 
     const config = reactive({
-      websocket_server: "ws://ws-local.blive-tools.xn--jp8ha.ws:25501/server",
-      image_server: "http://img-local.blive-tools.xn--jp8ha.ws:25501",
+      websocket_server: "wss://local.blive-tools.xn--jp8ha.ws:25501/server",
+      image_server: "https://local.blive-tools.xn--jp8ha.ws:25501",
       init_time: 7200,
       gift_list: [{
         gift_name: "小花花",
