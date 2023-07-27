@@ -134,7 +134,7 @@ export default {
 
   width: 400px;
 
-  background-color: rgba(100, 100, 100, 0.1);
+  background-color: rgba(100, 100, 100, 0.4);
 
   border-radius: 40px;
 

@@ -77,7 +77,7 @@ export default {
 
 <style scoped>
 .gift-frame {
-  background-color: rgba(100, 100, 100, 0.1);
+  background-color: rgba(100, 100, 100, 0.4);
   text-align: left;
   border-radius: 20px;
 
