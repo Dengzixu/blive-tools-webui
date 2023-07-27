@@ -11,8 +11,20 @@ const router = createRouter({
             path: 'gift/image_download',
             name: 'imageDownload',
             component: () => import('@/views/web/gift/NewImgDownloadView.vue')
+        }, {
+            path: '/obs/timer-config',
+            name: 'timerConfig',
+            component: () => import('@/views/web/obs/TimerConfigView.vue')
         }]
-    },]
+    }, {
+        path: '/obs-plugin',
+        name: 'obs-plugin',
+        children: [{
+            path: 'timer',
+            name: 'obs-plugin-timer',
+            component: () => import('@/views/obs/timer/TimerFrameView.vue')
+        }]
+    }]
 })
 
 export default router

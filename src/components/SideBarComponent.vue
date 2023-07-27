@@ -12,12 +12,24 @@
         </router-link>
       </a-menu-item>
 
-      <a-menu-item key="imageDownload">
-        <router-link to="/gift/image_download">
-          <pie-chart-outlined/>
-          <span>礼物贴图拉取</span>
-        </router-link>
-      </a-menu-item>
+      <a-menu-item-group key="group-utils" title="工具">
+        <a-menu-item key="imageDownload">
+          <router-link to="/gift/image_download">
+            <pie-chart-outlined/>
+            <span>礼物贴图拉取</span>
+          </router-link>
+        </a-menu-item>
+      </a-menu-item-group>
+
+      <a-menu-item-group key="group-obs" title="OBS 插件">
+        <a-menu-item key="timerConfig">
+          <router-link to="/obs/timer-config">
+            <pie-chart-outlined/>
+            <span>礼物计时器</span>
+          </router-link>
+        </a-menu-item>
+      </a-menu-item-group>
+
 
     </a-menu>
   </a-layout-sider>

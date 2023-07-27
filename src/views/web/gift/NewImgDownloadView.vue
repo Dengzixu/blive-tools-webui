@@ -53,6 +53,13 @@
       下载所有
     </a-button>
 
+    <a-button type="primary" @click="handleDownloadAll(giftList.filtered,'gif')" style="margin-left: 10px;"
+              :disabled="giftList.filtered.length<=0">
+      <DownloadOutlined/>
+      下载所有 (gif)
+    </a-button>
+
+
     <a-button style="margin-left: 10px;" disabled>
       <SettingOutlined/>
       选项
@@ -98,7 +105,7 @@
           <template #icon>
             <DownloadOutlined/>
           </template>
-          下载
+          下载 (PNG)
         </a-button>
 
         <a-button size="small" @click="handleRAWInfo(record['id'])">
@@ -356,8 +363,9 @@ export default {
     /**
      * 下载所有礼物贴图
      * @param list
+     * @param type
      */
-    const handleDownloadAll = (list) => {
+    const handleDownloadAll = (list, type = 'png') => {
       if (list.length === 0) {
         Modal.error({title: '贴图下载失败', content: '请先拉取贴图'});
         return;
@@ -373,15 +381,36 @@ export default {
       const promiseList = [];
 
       // 循环请求
-      list.forEach(i => {
-        promiseList.push(axios({
-          url: i['img_basic'],
-          method: "get",
-          responseType: 'blob'
-        }).then(r => {
-          zipFile.file(i['name'] + '.png', r.data);
-        }));
-      })
+      switch (type) {
+        case "png": {
+          list.forEach(i => {
+            promiseList.push(axios({
+              url: i['img_basic'],
+              method: "get",
+              responseType: 'blob'
+            }).then(r => {
+              zipFile.file(i['name'] + '.png', r.data);
+            }));
+          });
+          break;
+        }
+
+        case "gif": {
+          list.forEach(i => {
+            // 替换一下 URL 避免出现 403 的问题
+            let newURL = i['gif'].replaceAll('i0.hdslb.com', 's1.hdslb.com');
+
+            promiseList.push(axios({
+              url: newURL,
+              method: "get",
+              responseType: 'blob'
+            }).then(r => {
+              zipFile.file(i['name'] + '.gif', r.data);
+            }));
+          });
+          break;
+        }
+      }
 
       Promise.all(promiseList).then(() => {
         zipFile.generateAsync({type: "blob"}).then(content => {
