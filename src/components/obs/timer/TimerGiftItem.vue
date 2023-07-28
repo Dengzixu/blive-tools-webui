@@ -1,26 +1,23 @@
 <template>
-
-
   <a-row class="gift-frame" justify="center" @dblclick="handleOp">
     <a-col :xs="8">
       <div class="gift-image">
         <img class="gift-image"
-             :src="`${imageServer}/img/obs-plugin/timer/gift-image/${giftName}.${(giftName==='舰长'||giftName==='提督'||giftName==='总督')?'png':'gif'}`"
+             :src="createImageURL(giftName)"
              alt="礼物图片">
       </div>
     </a-col>
+
     <a-col :xs="16" style="text-align: center">
       <div class="gift-num">
         {{ `${giftName} x ${num}` }}
       </div>
 
       <div class="gift-time">
-        {{ opString }}
+        {{ operateText }}
       </div>
     </a-col>
   </a-row>
-
-
 </template>
 
 <script>
@@ -38,27 +35,28 @@ export default {
     imageServer: String
   },
   setup(props) {
-    let opString = ref('default String');
+    let operateText = ref('');
 
+    // 根据操作类型来生成文本
     switch (props.op) {
       case 'TIME_ADD':
-        opString.value = `时间 + ${props.opValue} 秒`;
+        operateText.value = `时间 + ${props.opValue} 秒`;
         break;
 
       case 'TIME_SUB':
-        opString.value = `时间 - ${props.opValue} 秒`;
+        operateText.value = `时间 - ${props.opValue} 秒`;
         break;
 
       case 'TIME_MCL':
-        opString.value = `时间 x ${props.opValue}`;
+        operateText.value = `时间 x ${props.opValue}`;
         break;
 
       case 'TIME_DIV':
-        opString.value = `时间 ÷ ${props.opValue}`;
+        operateText.value = `时间 ÷ ${props.opValue}`;
         break;
 
       case 'TIME_ZERO':
-        opString.value = `时间清零`;
+        operateText.value = `时间清零`;
         break;
     }
 
@@ -66,9 +64,26 @@ export default {
       Timer.modifyTime(props.op, props.opValue);
     }
 
+    const createImageURL = (giftName) => {
+      // 图片路径
+      const imageURLPath = '/img/obs-plugin/timer/gift-image/';
+
+      let imageURL = props.imageServer + imageURLPath + giftName;
+
+      // 根据礼物类型决定文件格式
+      if (giftName === '舰长' || giftName === '提督' || giftName === '总督') {
+        imageURL += ".png";
+      } else {
+        imageURL += ".gif";
+      }
+
+      return imageURL;
+    }
+
     return {
-      opString,
-      handleOp
+      operateText,
+      handleOp,
+      createImageURL,
     }
   }
 }

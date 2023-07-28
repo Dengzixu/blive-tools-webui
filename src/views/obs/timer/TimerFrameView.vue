@@ -89,6 +89,7 @@ export default {
           if (giftConfigMap.has(convertGiftName)) {
             let config = giftConfigMap.get(convertGiftName);
 
+            // 这里换算一下操作值
             let newOpValue = config['op_value'] * Math.round(message['content']['num'] / config['num']);
 
             Timer.modifyTime(config['op'], newOpValue);
@@ -101,7 +102,7 @@ export default {
       }
     });
 
-    const intervel = setInterval(() => {
+    const timerInterval = setInterval(() => {
       leftTimeText.value = Timer.getLeftTime() > 0 ? Timer.format(Timer.getLeftTime()) : '任务完成';
     }, 1000)
 
@@ -111,7 +112,7 @@ export default {
     }
 
     return {
-      config: config,
+      config,
       leftTimeText,
       sendMessageText,
       handleResetTimer
@@ -139,6 +140,8 @@ export default {
   border-radius: 40px;
 
   text-align: center;
+
+  color: #f5f5f5;
 }
 
 .text-left-time {
