@@ -8,10 +8,6 @@ export default {
             method: "get",
             params: {
                 "platform": "pc"
-            },
-            onDownloadProgress: (progressEvent) => {
-                console.log(progressEvent.loaded / progressEvent.total)
-                progressPercent.value = (progressEvent.loaded / progressEvent.total) * 100;
             }
         });
     },
@@ -30,8 +26,6 @@ export default {
                 "room_id": roomID,
             }
         }
-
-
         return axios({
             url: "/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftData",
             baseURL: import.meta.env.VITE_PROXY_URL,

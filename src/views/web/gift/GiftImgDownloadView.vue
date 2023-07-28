@@ -56,7 +56,7 @@
     <a-button type="primary" @click="handleDownloadAll(giftList.filtered,'gif')" style="margin-left: 10px;"
               :disabled="giftList.filtered.length<=0">
       <DownloadOutlined/>
-      下载所有 (gif)
+      下载所有 (GIF)
     </a-button>
 
 
@@ -130,9 +130,9 @@ import {DownloadOutlined, SettingOutlined, RedoOutlined} from '@ant-design/icons
 
 import axios from "axios";
 import JSZip from "jszip";
+import {saveAs} from "file-saver";
 
 import BLiveAPIProxy from "@/api/BLiveAPIProxy";
-import FileUtils from "@/utils/FileUtils";
 
 export default {
   name: "NewImgDownload",
@@ -142,6 +142,7 @@ export default {
     RedoOutlined
   },
   setup() {
+    // 表格列
     const columns = [
       {
         title: '礼物 ID',
@@ -192,39 +193,35 @@ export default {
       selectedRowKeys: [],
     });
 
+    // 分区列表
     const areaList = ref([]);
 
+    // 加载状态
     const onLoading = ref(false);
 
-    const progressPercent = ref(0);
-
+    // 直播间 ID
     const roomID = ref(0);
 
     onBeforeMount(() => {
       loadGiftData();
     });
 
+    /**
+     * 加载礼物数据
+     */
     const loadGiftData = () => {
       onLoading.value = true;
 
-      // 加载礼物数据
-      BLiveAPIProxy.giftConfigProxy(progressPercent).then(r => {
+      // 发起网络请求
+      BLiveAPIProxy.giftConfigProxy().then(r => {
         // Response Body
         const responseBody = r.data;
 
         // 原始礼物列表
         giftList.original = responseBody['data']['list'];
 
-        const tempCorner_mark_list = [];
-
+        // 生成 Gift Map
         giftList.original.forEach(gift => {
-          // 生成 tempCorner_mark_list
-
-          if (gift['corner_mark'] !== '' && !tempCorner_mark_list.includes(gift['corner_mark'])) {
-            tempCorner_mark_list.push(gift['corner_mark'])
-          }
-
-          // 生成 Gift Map
           giftList.map_all.set(gift['id'], gift);
         });
 
@@ -249,9 +246,6 @@ export default {
         const responseBody = r.data;
 
         areaList.value = responseBody['data']['data']
-
-        console.log(responseBody['data']['data']);
-
       }).catch(e => {
         Modal.error({
           title: '请求失败',
@@ -269,41 +263,41 @@ export default {
       // 这部分处理 room 过滤器
       if (!filter.all) {
         BLiveAPIProxy.giftDataProxy(Number(roomID.value), Number(filter.selectArea[1]), Number(filter.selectArea[0])).then(r => {
+          // Response Body
           const responseBody = r.data;
-
-          let roomGiftIDList = [];
-
           // 礼物大列表
           const data = responseBody['data'];
+          // 房间礼物 ID 列表
+          let roomGiftIDList = [];
 
           // 获取金瓜子 (电池) 礼物 ['room_gift_list']['gold_list']
-          data['room_gift_list']['gold_list'].forEach(i => {
-            roomGiftIDList.push(i['gift_id']);
+          data['room_gift_list']['gold_list'].forEach(goldGift => {
+            roomGiftIDList.push(goldGift['gift_id']);
             // 金瓜子礼物可能包含可升级礼物，要对这部分进行处理
-            if (i['upgrade_gift']) {
-              i['upgrade_gift'].forEach(j => {
+            if (goldGift['upgrade_gift']) {
+              goldGift['upgrade_gift'].forEach(j => {
                 roomGiftIDList.push(j['gift_id']);
               });
             }
           });
 
           // 获取银瓜子礼物 ['room_gift_list']['silver_list']
-          data['room_gift_list']['silver_list'].forEach(i => {
-            roomGiftIDList.push(i['gift_id']);
+          data['room_gift_list']['silver_list'].forEach(silverGift => {
+            roomGiftIDList.push(silverGift['gift_id']);
           });
 
           // 获取特定标签下的礼物列表 ['tab_list']
           // 先遍历有多少个 tab
-          data['tab_list'].forEach(i => {
+          data['tab_list'].forEach(tabGift => {
             // 获取当前标签下礼物列表
-            i['list'].forEach(j => {
+            tabGift['list'].forEach(j => {
               roomGiftIDList.push(j['gift_id']);
             });
           });
 
           // 获取特殊礼物 ['special_show_gift']
-          data['special_show_gift'].forEach(i => {
-            roomGiftIDList.push(i['gift_id']);
+          data['special_show_gift'].forEach(specialGift => {
+            roomGiftIDList.push(specialGift['gift_id']);
           });
 
           // 应用过滤器
@@ -339,14 +333,14 @@ export default {
         method: "get",
         responseType: 'blob'
       }).then(r => {
-        FileUtils.saveBlob(giftList.map_all.get(giftID)['name'] + '.png', r.data).then()
+        saveAs(r.data, giftList.map_all.get(giftID)['name'] + '.png')
       }).catch(e => {
         Modal.error({
           title: '请求失败',
           content: e.response ? e.response : '网络错误',
         });
       });
-    }
+    };
 
     /**
      * 处理显示礼物信息
@@ -358,14 +352,14 @@ export default {
         content: JSON.stringify(giftList.map_all.get(giftID)),
         width: '1000px'
       });
-    }
+    };
 
     /**
      * 下载所有礼物贴图
      * @param list
-     * @param type
+     * @param imageType
      */
-    const handleDownloadAll = (list, type = 'png') => {
+    const handleDownloadAll = (list, imageType = 'png') => {
       if (list.length === 0) {
         Modal.error({title: '贴图下载失败', content: '请先拉取贴图'});
         return;
@@ -380,41 +374,36 @@ export default {
 
       const promiseList = [];
 
-      // 循环请求
-      switch (type) {
-        case "png": {
-          list.forEach(i => {
-            promiseList.push(axios({
-              url: i['img_basic'],
-              method: "get",
-              responseType: 'blob'
-            }).then(r => {
-              zipFile.file(i['name'] + '.png', r.data);
-            }));
-          });
-          break;
+
+      list.forEach(i => {
+        // 下载URL与文件名
+        let imageDownloadURL, imageSaveName = '';
+
+        switch (imageType) {
+          case "gif": {
+            imageDownloadURL = i['gif'].replaceAll('i0.hdslb.com', 's1.hdslb.com');
+            imageSaveName = i['name'] + '.gif';
+            break;
+          }
+          case "png": {
+            imageDownloadURL = i['img_basic'];
+            imageSaveName = i['name'] + '.png'
+          }
         }
 
-        case "gif": {
-          list.forEach(i => {
-            // 替换一下 URL 避免出现 403 的问题
-            let newURL = i['gif'].replaceAll('i0.hdslb.com', 's1.hdslb.com');
+        promiseList.push(axios({
+          url: imageDownloadURL,
+          method: "get",
+          responseType: 'blob'
+        }).then(r => {
+          zipFile.file(imageSaveName, r.data);
+        }));
+      });
 
-            promiseList.push(axios({
-              url: newURL,
-              method: "get",
-              responseType: 'blob'
-            }).then(r => {
-              zipFile.file(i['name'] + '.gif', r.data);
-            }));
-          });
-          break;
-        }
-      }
 
       Promise.all(promiseList).then(() => {
         zipFile.generateAsync({type: "blob"}).then(content => {
-          FileUtils.saveBlob('贴图.zip', content);
+          saveAs(content, `贴图-${imageType}.zip`)
         });
       });
     }
@@ -425,7 +414,6 @@ export default {
       giftList,
       areaList,
       onLoading,
-      progressPercent,
       roomID,
       handleFilter,
       loadGiftData,
