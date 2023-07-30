@@ -10,7 +10,7 @@ const router = createRouter({
         children: [{
             path: 'gift/image_download',
             name: 'imageDownload',
-            component: () => import('@/views/web/gift/GiftImgDownloadView.vue')
+            component: () => import('@/views/web/utils/GiftImgDownloadView.vue')
         }, {
             path: '/obs/timer-config',
             name: 'timerConfig',
