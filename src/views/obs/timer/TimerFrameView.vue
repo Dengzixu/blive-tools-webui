@@ -25,7 +25,7 @@ import {useRoute} from 'vue-router'
 import {message} from 'ant-design-vue';
 import {Base64} from 'js-base64';
 
-import TimerGiftItem from "@/components/obs/timer/TimerGiftItem.vue";
+import TimerGiftItem from "@/components/obs/timer/TimerGiftItemComponent.vue";
 
 import Timer from "@/js/obs/timer/Timer";
 import Websocket from "@/utils/Websocket";
