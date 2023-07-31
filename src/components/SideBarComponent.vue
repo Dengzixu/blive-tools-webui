@@ -28,6 +28,13 @@
             <span>礼物计时器</span>
           </router-link>
         </a-menu-item>
+
+        <a-menu-item key="clockConfig">
+          <router-link to="/obs/clock-config">
+            <pie-chart-outlined/>
+            <span>时钟</span>
+          </router-link>
+        </a-menu-item>
       </a-menu-item-group>
 
 

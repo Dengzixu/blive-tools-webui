@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
+    "@types/pako": "^2.0.0",
     "ant-design-vue": "^3.2.20",
     "axios": "^1.4.0",
     "file-saver": "^2.0.5",

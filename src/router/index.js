@@ -15,6 +15,10 @@ const router = createRouter({
             path: '/obs/timer-config',
             name: 'timerConfig',
             component: () => import('@/views/web/obs/TimerConfigView.vue')
+        }, {
+            path: '/obs/clock-config',
+            name: 'clockConfig',
+            component: () => import('@/views/web/obs/ClockConfigView.vue')
         }]
     }, {
         path: '/obs-plugin',
@@ -23,6 +27,10 @@ const router = createRouter({
             path: 'timer',
             name: 'obs-plugin-timer',
             component: () => import('@/views/obs/timer/TimerFrameView.vue')
+        }, {
+            path: 'clock',
+            name: 'obs-plugin-clock',
+            component: () => import('@/views/obs/timer/ClockView.vue')
         }]
     }]
 })
