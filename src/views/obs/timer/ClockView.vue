@@ -2,6 +2,7 @@
 import {onMounted, reactive, ref} from "vue";
 import {decodeConfig} from "@/utils/Config";
 import {useRoute} from "vue-router";
+import {message} from "ant-design-vue";
 
 export default {
   name: "ClockView",
@@ -26,7 +27,7 @@ export default {
       Object.assign(config, loadedConfig)
       console.log('加载配置:\n' + JSON.stringify(config));
     } catch (e) {
-
+      message.error('加载配置失败，将使用默认配置文件', 60)
       console.log('加载配置失败，将使用默认配置文件', e)
     }
 
