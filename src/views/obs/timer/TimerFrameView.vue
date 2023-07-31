@@ -48,7 +48,7 @@ export default {
 
     onBeforeMount(() => {
       if (config.gift_list.length <= 0) {
-        throw "配置文件不正确";
+        throw new Error('配置文件不正确');
       }
     });
 
