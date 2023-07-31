@@ -1,3 +1,111 @@
+<script>
+import {reactive, ref, onMounted} from "vue";
+import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons-vue";
+
+import {encodeConfig, decodeURLConfig} from "@/utils/Config";
+
+
+import {message} from "ant-design-vue";
+
+export default {
+  name: "TimerConfigView",
+  components: {
+    PlusOutlined,
+    MinusCircleOutlined
+  },
+  setup() {
+    const operateOptions = [{
+      value: 'TIME_ADD',
+      label: '时间增加',
+    }, {
+      value: 'TIME_SUB',
+      label: '时间减少',
+    }, {
+      value: 'TIME_MCL',
+      label: '时间乘法',
+    }, {
+      value: 'TIME_DIV',
+      label: '时间除法',
+    }, {
+      value: 'TIME_ZERO',
+      label: '时间归零',
+    }];
+
+    const config = reactive({
+      websocket_server: "wss://local.blive-tools.xn--jp8ha.ws:25501/server",
+      image_server: "https://local.blive-tools.xn--jp8ha.ws:25501",
+      init_time: 7200,
+      gift_list: [{
+        gift_name: "辣条",
+        num: 1,
+        op: "TIME_ADD",
+        op_value: 1,
+        id: Date.now(),
+      }],
+    });
+
+    const configURL = ref('');
+    const historyConfigURL = ref('');
+
+    onMounted(() => {
+      handleFormChange();
+    });
+
+    /**
+     * 处理表单更改
+     */
+    const handleFormChange = () => {
+      configURL.value = window.location.origin + "/obs-plugin/timer?config=" + encodeConfig(config);
+    };
+
+    /**
+     * 处理添加礼物
+     */
+    const handleAddGift = () => {
+      config.gift_list.push({
+        gift_name: "",
+        num: 1,
+        op: "TIME_ADD",
+        op_value: 60,
+        id: Date.now(),
+      });
+    };
+
+    /**
+     * 处理删除礼物
+     * @param gift
+     */
+    const handleRemoveGift = (gift) => {
+      let index = config.gift_list.indexOf(gift);
+      if (index !== -1) {
+        config.gift_list.splice(index, 1);
+      }
+    };
+
+    const handleConfigURLChange = () => {
+      try {
+        const readConfig = decodeURLConfig(configURL.value);
+        console.log('读取到配置文件:\n' + JSON.stringify(readConfig));
+
+        Object.assign(config, readConfig);
+      } catch (e) {
+        message.error(e.message, 5)
+      }
+    }
+    return {
+      config,
+      configURL,
+      historyConfigURL,
+      operateOptions,
+      handleAddGift,
+      handleRemoveGift,
+      handleFormChange,
+      handleConfigURLChange
+    }
+  }
+}
+</script>
+
 <template>
   <a-typography-title :level="3">礼物计时器配置</a-typography-title>
 
@@ -70,120 +178,6 @@
 
 
 </template>
-
-<script>
-import {reactive, ref, onBeforeMount, onMounted} from "vue";
-import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons-vue";
-
-import {Base64} from 'js-base64';
-
-export default {
-  name: "TimerConfigView",
-  components: {
-    PlusOutlined,
-    MinusCircleOutlined
-  },
-  setup() {
-    const operateOptions = [{
-      value: 'TIME_ADD',
-      label: '时间增加',
-    }, {
-      value: 'TIME_SUB',
-      label: '时间减少',
-    }, {
-      value: 'TIME_MCL',
-      label: '时间乘法',
-    }, {
-      value: 'TIME_DIV',
-      label: '时间除法',
-    }, {
-      value: 'TIME_ZERO',
-      label: '时间归零',
-    }];
-
-    const config = reactive({
-      websocket_server: "wss://local.blive-tools.xn--jp8ha.ws:25501/server",
-      image_server: "https://local.blive-tools.xn--jp8ha.ws:25501",
-      init_time: 7200,
-      gift_list: [{
-        gift_name: "小花花",
-        num: 1,
-        op: "TIME_ADD",
-        op_value: 60,
-        id: Date.now(),
-      }],
-    });
-
-    const configURL = ref('');
-    const historyConfigURL = ref('');
-
-    const encodeConfig = object => {
-      return Base64.encode(JSON.stringify(object), true);
-    };
-
-    onMounted(() => {
-      handleFormChange();
-    });
-
-    /**
-     * 处理表单更改
-     */
-    const handleFormChange = () => {
-      configURL.value = window.location.origin + "/obs-plugin/timer?config=" + encodeConfig(config);
-    };
-
-    /**
-     * 处理添加礼物
-     */
-    const handleAddGift = () => {
-      config.gift_list.push({
-        gift_name: "",
-        num: 1,
-        op: "TIME_ADD",
-        op_value: 60,
-        id: Date.now(),
-      });
-    };
-
-    /**
-     * 处理删除礼物
-     * @param gift
-     */
-    const handleRemoveGift = (gift) => {
-      let index = config.gift_list.indexOf(gift);
-      if (index !== -1) {
-        config.gift_list.splice(index, 1);
-      }
-    };
-
-    const handleConfigURLChange = (e) => {
-
-      try {
-        const url = new URL(configURL.value);
-
-        const configParam = new URLSearchParams(url.search).get('config');
-
-        const readConfig = JSON.parse(Base64.decode(configParam));
-        console.log('读取到配置文件:\n' + JSON.stringify(readConfig));
-
-        Object.assign(config, readConfig);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return {
-      config,
-      configURL,
-      historyConfigURL,
-      operateOptions,
-      handleAddGift,
-      handleRemoveGift,
-      handleFormChange,
-      handleConfigURLChange
-    }
-  }
-}
-</script>
 
 <style scoped>
 

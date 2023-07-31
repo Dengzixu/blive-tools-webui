@@ -1,34 +1,13 @@
-<template>
-  <div class="frame">
-    <div class="text-left-time">剩余时间</div>
-    <div class="text-left-time-clock" @dblclick="handleResetTimer">{{ leftTimeText }}</div>
-
-    <a-row class="gift-list" justify="center">
-      <a-col :xs="12" v-for="item in config['gift_list']">
-        <TimerGiftItem :gift-name="item['gift_name']"
-                       :num="Number(item['num'])"
-                       :op="item['op']"
-                       :op-value="Number(item['op_value'])"
-                       :image-server="config['image_server']"/>
-      </a-col>
-    </a-row>
-
-    <div class="text-send">{{ sendMessageText }}</div>
-
-  </div>
-</template>
-
-
 <script>
-import {ref, onBeforeMount, onMounted} from "vue";
+import {ref, reactive, onBeforeMount, onMounted} from "vue";
 import {useRoute} from 'vue-router'
 import {message} from 'ant-design-vue';
-import {Base64} from 'js-base64';
 
 import TimerGiftItem from "@/components/obs/timer/TimerGiftItemComponent.vue";
 
 import Timer from "@/js/obs/timer/Timer";
 import Websocket from "@/utils/Websocket";
+import {decodeConfig} from "@/utils/Config";
 
 export default {
   name: "TimerFrame",
@@ -38,8 +17,28 @@ export default {
   setup() {
     const route = useRoute();
 
-    const config = JSON.parse(Base64.decode(route.query.config.toString()))
-    console.log('加载配置文件:\n' + JSON.stringify(config));
+    const config = reactive({
+      websocket_server: "wss://local.blive-tools.xn--jp8ha.ws:25501/server",
+      image_server: "https://local.blive-tools.xn--jp8ha.ws:25501",
+      init_time: 7200,
+      gift_list: [{
+        gift_name: "辣条",
+        num: 1,
+        op: "TIME_ADD",
+        op_value: 1,
+        id: Date.now(),
+      }],
+    });
+
+    // 尝试读取配置文件，读取失败使用默认配置
+    try {
+      const loadedConfig = decodeConfig(route.query.config.toString())
+      Object.assign(config, loadedConfig)
+      console.log('加载配置:\n' + JSON.stringify(config));
+    } catch (e) {
+      message.error('加载配置失败，将使用默认配置文件', 60)
+      console.log('加载配置失败，将使用默认配置文件', e)
+    }
 
     let giftConfigMap = new Map();
 
@@ -48,6 +47,7 @@ export default {
 
     onBeforeMount(() => {
       if (config.gift_list.length <= 0) {
+        message.error('加载配置失败，配置文件不正确', 0)
         throw new Error('配置文件不正确');
       }
     });
@@ -122,6 +122,26 @@ export default {
 
 }
 </script>
+
+<template>
+  <div class="frame">
+    <div class="text-left-time">剩余时间</div>
+    <div class="text-left-time-clock" @dblclick="handleResetTimer">{{ leftTimeText }}</div>
+
+    <a-row class="gift-list" justify="center">
+      <a-col :xs="12" v-for="item in config['gift_list']">
+        <TimerGiftItem :gift-name="item['gift_name']"
+                       :num="Number(item['num'])"
+                       :op="item['op']"
+                       :op-value="Number(item['op_value'])"
+                       :image-server="config['image_server']"/>
+      </a-col>
+    </a-row>
+
+    <div class="text-send">{{ sendMessageText }}</div>
+
+  </div>
+</template>
 
 <style scoped>
 
