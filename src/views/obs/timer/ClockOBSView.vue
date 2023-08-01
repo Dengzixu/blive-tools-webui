@@ -84,7 +84,7 @@ const addZero = (str: number) => {
   /*0 0 50px #00a67c,*/
   /*0 0 75px #00a67c;*/
 
-  //font-family: 'ZCOOL KuaiLe', cursive;
+  /* font-family: 'ZCOOL KuaiLe', cursive; */
 }
 
 .time {
