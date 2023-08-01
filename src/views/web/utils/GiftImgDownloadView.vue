@@ -63,7 +63,7 @@ const giftList = reactive({
 })
 
 const state = reactive<{
-  selectedRowKeys: number
+  selectedRowKeys: any
 }>({
   selectedRowKeys: []
 })
