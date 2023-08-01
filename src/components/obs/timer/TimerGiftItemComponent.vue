@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from 'vue'
+import { ref } from 'vue'
 
 import Timer from '@/ts/obs/timer/Timer'
 
@@ -61,14 +61,14 @@ const createImageURL = (giftName: string) => {
   <a-row class="gift-frame" justify="center" @dblclick="handleOp">
     <a-col :xs="8">
       <div class="gift-image">
-        <img class="gift-image" :src="createImageURL(giftName as string)" alt="礼物图片"/>
+        <img class="gift-image" :src="createImageURL(giftName as string)" alt="礼物图片" />
       </div>
     </a-col>
 
-    <a-col :xs="16" style="text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;">
+    <a-col
+      :xs="16"
+      style="text-align: center; display: flex; flex-direction: column; justify-content: center"
+    >
       <div class="gift-num">
         {{ `${giftName} x ${num}` }}
       </div>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import {ref, reactive, onBeforeMount, onMounted} from 'vue'
-import {useRoute} from 'vue-router'
-import {message} from 'ant-design-vue'
+import { ref, reactive, onBeforeMount, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { message } from 'ant-design-vue'
 
 import TimerGiftItem from '@/components/obs/timer/TimerGiftItemComponent.vue'
 
 import Timer from '@/ts/obs/timer/Timer'
 import Websocket from '@/utils/Websocket'
-import {decodeConfig} from '@/utils/Config'
+import { decodeConfig } from '@/utils/Config'
 
 const route = useRoute()
 
