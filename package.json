@@ -1,27 +1,44 @@
 {
   "name": "blive-tools-webui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite --mode development",
-    "build": "vite --mode production build",
-    "preview": "vite preview"
+    "dev": "vite",
+    "build": "run-p type-check build-only",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
+    "@types/file-saver": "^2.0.5",
     "@types/pako": "^2.0.0",
-    "ant-design-vue": "^3.2.20",
+    "ant-design-vue": "^4.0.0",
     "axios": "^1.4.0",
     "file-saver": "^2.0.5",
     "js-base64": "^3.7.5",
     "jszip": "^3.10.1",
-    "pinia": "^2.0.33",
-    "vite-plugin-compression": "^0.5.1",
-    "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "pinia": "^2.1.4",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^3.2.0",
-    "vite": "^3.2.4"
+    "@rushstack/eslint-patch": "^1.3.2",
+    "@tsconfig/node18": "^18.2.0",
+    "@types/node": "^18.17.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "@vue/eslint-config-typescript": "^11.0.3",
+    "@vue/tsconfig": "^0.4.0",
+    "axios": "^1.4.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-vue": "^9.15.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.0",
+    "typescript": "~5.1.6",
+    "vite": "^4.4.6",
+    "vue-tsc": "^1.8.6"
   }
 }
