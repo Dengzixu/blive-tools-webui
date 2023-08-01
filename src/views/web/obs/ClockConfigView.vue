@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { decodeURLConfig, encodeConfig } from '@/utils/Config'
+import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config'
 import { message } from 'ant-design-vue'
 
 const configURL = ref('')
@@ -25,7 +25,7 @@ onMounted(() => {
  * 处理表单更改
  */
 const handleFormChange = () => {
-  configURL.value = window.location.origin + '/obs-plugin/clock?config=' + encodeConfig(config)
+  configURL.value = window.location.origin + '/obs/clock?config=' + encodeConfig(config)
 }
 
 const handleConfigURLChange = () => {

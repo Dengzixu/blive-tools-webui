@@ -2,7 +2,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
 
-import { encodeConfig, decodeURLConfig } from '@/utils/Config'
+import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config'
 
 import { message } from 'ant-design-vue'
 
@@ -55,7 +55,7 @@ onMounted(() => {
  * 处理表单更改
  */
 const handleFormChange = () => {
-  configURL.value = window.location.origin + '/obs-plugin/timer?config=' + encodeConfig(config)
+  configURL.value = window.location.origin + '/obs/timer?config=' + encodeConfig(config)
 }
 
 /**

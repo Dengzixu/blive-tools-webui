@@ -10,25 +10,25 @@ const router = createRouter({
       component: () => import('@/views/web/WebHomeView.vue'),
       children: [
         {
-          path: '/gift/image_download',
+          path: 'gift/image_download',
           name: 'imageDownload',
           component: () => import('@/views/web/utils/GiftImgDownloadView.vue')
         },
         {
-          path: '/obs/timer-config',
+          path: 'plugin/timer-plugin-config',
           name: 'timerConfig',
           component: () => import('@/views/web/obs/TimerConfigView.vue')
         },
         {
-          path: '/obs/clock-config',
+          path: 'plugin/clock-plugin-config',
           name: 'clockConfig',
           component: () => import('@/views/web/obs/ClockConfigView.vue')
         }
       ]
     },
     {
-      path: '/obs-plugin',
-      name: 'obs-plugin',
+      path: '/obs',
+      name: 'obs',
       children: [
         {
           path: 'timer',

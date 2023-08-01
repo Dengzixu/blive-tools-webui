@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { decodeConfig } from '@/utils/Config'
+import { decodeConfig } from '@/utils/plugin-config'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 
@@ -19,6 +19,8 @@ const config = reactive({
 })
 
 // 尝试读取配置文件，读取失败使用默认配置
+
+console.log(route.query['config'])
 try {
   const loadedConfig = decodeConfig(route.query['config'] as string)
   Object.assign(config, loadedConfig)
