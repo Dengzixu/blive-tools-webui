@@ -30,8 +30,8 @@ const operateOptions = [
 ]
 
 const config = reactive({
-  websocket_server: 'wss://local.blive-tools.xn--jp8ha.ws:25501/server',
-  image_server: 'https://local.blive-tools.xn--jp8ha.ws:25501',
+  websocket_server: import.meta.env.VITE_WS_SERVER_URL,
+  image_server: import.meta.env.VITE_IMG_SERVER_URL,
   init_time: 7200,
   gift_list: [
     {
