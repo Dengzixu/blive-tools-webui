@@ -20,6 +20,10 @@ const config = reactive({
     5: '星期五',
     6: '星期六',
     0: '星期日'
+  },
+  style: {
+    shadow_color: '#ff9b7f',
+    font_color: '#ffffff'
   }
 })
 
@@ -82,7 +86,13 @@ const addZero = (str: number) => {
 </script>
 
 <template>
-  <div class="frame">
+  <div
+    class="frame"
+    :style="{
+      color: config.style.font_color,
+      textShadow: ` 0 0 10px ${config.style.shadow_color}`
+    }"
+  >
     <span class="time">{{ timeText }}</span>
 
     <span class="date">{{ dateText }}</span>
@@ -95,9 +105,11 @@ const addZero = (str: number) => {
   text-align: center;
 
   color: white;
-  text-shadow:
-    0 0 10px #fff,
-    0 0 10px rgb(255, 155, 127);
+  /* text-shadow: 0 0 10px rgb(255, 155, 127);*/
+  /*
+    text-shadow: 0 0 10px #fff,
+  0 0 10px rgb(255, 155, 127);
+   */
   /*0 0 15px #fff,*/
   /*0 0 35px #00a67c,*/
   /*0 0 40px #00a67c,*/

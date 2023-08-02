@@ -121,16 +121,16 @@ const handleConfigURLChange = () => {
     <a-col :span="10">
       <a-form
         :model="config"
-        :label-col="{ span: 4 }"
+        :label-col="{ span: 3 }"
         :wrapper-col="{ span: 24 }"
         @change="handleFormChange"
       >
         <a-typography-title :level="5">服务器配置(非必要请勿修改)</a-typography-title>
-        <a-form-item label="消息服务器地址" name="websocket_server">
+        <a-form-item label="消息服务器" name="websocket_server">
           <a-input v-model:value="config.websocket_server" />
         </a-form-item>
 
-        <a-form-item label="贴图服务器地址" name="image_server">
+        <a-form-item label="贴图服务器" name="image_server">
           <a-input v-model:value="config.image_server" />
         </a-form-item>
 
@@ -161,7 +161,6 @@ const handleConfigURLChange = () => {
             :options="operateOptions"
             style="width: 300px"
           ></a-select>
-
 
           <a-form-item :name="['users', index, 'op_value']">
             <a-input
@@ -205,9 +204,11 @@ const handleConfigURLChange = () => {
     </a-col>
 
     <a-col :span="8" :offset="2">
-      <preview-component>
-        <TimerOBSView :is-preview="true" :config="encodeConfig(config)" style="margin: 0 auto" />
-      </preview-component>
+      <a-affix :offset-top="120">
+        <preview-component>
+          <TimerOBSView :is-preview="true" :config="encodeConfig(config)" style="margin: 0 auto" />
+        </preview-component>
+      </a-affix>
     </a-col>
   </a-row>
 </template>

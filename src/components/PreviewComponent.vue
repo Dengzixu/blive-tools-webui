@@ -26,5 +26,6 @@ const previewBackgroundColor = ref<string>('#00a1d7')
 .preview-frame {
   min-height: 500px;
   padding-top: 10%;
+  padding-bottom: 10%;
 }
 </style>

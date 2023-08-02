@@ -22,6 +22,10 @@ const config = reactive({
     5: '星期五',
     6: '星期六',
     0: '星期日'
+  },
+  style: {
+    shadow_color: '#ff9b7f',
+    font_color: '#ffffff'
   }
 })
 
@@ -62,7 +66,7 @@ const handleConfigURLChange = () => {
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-form :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
+      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
         <a-typography-title :level="5">文本配置</a-typography-title>
         <a-form-item label="星期一" name="week1">
           <a-input v-model:value="config.text[1]" />
@@ -85,6 +89,14 @@ const handleConfigURLChange = () => {
         <a-form-item label="星期天" name="week1">
           <a-input v-model:value="config.text[0]" />
         </a-form-item>
+
+        <a-typography-title :level="5">样式配置</a-typography-title>
+        <a-form-item label="阴影颜色" name="out-shadow-color">
+          <a-input type="color" v-model:value="config.style.shadow_color" />
+        </a-form-item>
+        <a-form-item label="文字颜色" name="font-color">
+          <a-input type="color" v-model:value="config.style.font_color" />
+        </a-form-item>
       </a-form>
       <a-divider />
       <a-typography-title :level="5">配置链接</a-typography-title>
@@ -93,9 +105,11 @@ const handleConfigURLChange = () => {
     </a-col>
 
     <a-col :span="8" :offset="2">
-      <preview-component>
-        <ClockOBSView :is-preview="true" :config="encodeConfig(config)" />
-      </preview-component>
+      <a-affix :offset-top="120">
+        <preview-component>
+          <ClockOBSView :is-preview="true" :config="encodeConfig(config)" />
+        </preview-component>
+      </a-affix>
     </a-col>
   </a-row>
 </template>
