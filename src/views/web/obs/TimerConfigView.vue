@@ -55,7 +55,7 @@ onMounted(() => {
  * 处理表单更改
  */
 const handleFormChange = () => {
-  configURL.value = window.location.origin + '/obs/timer?config=' + encodeConfig(config)
+  configURL.value = window.location.origin + '/#/obs/timer?config=' + encodeConfig(config)
 }
 
 /**
