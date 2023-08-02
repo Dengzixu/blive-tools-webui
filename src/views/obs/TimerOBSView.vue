@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount, onMounted } from 'vue'
+import { ref, reactive, onBeforeMount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 
@@ -10,6 +10,11 @@ import Websocket from '@/utils/Websocket'
 import { decodeConfig } from '@/utils/plugin-config/config'
 
 const route = useRoute()
+
+const props = defineProps<{
+  isPreview?: boolean
+  config?: string
+}>()
 
 const config = reactive({
   websocket_server: 'wss://local.blive-tools.xn--jp8ha.ws:25501/server',
@@ -26,29 +31,41 @@ const config = reactive({
   ]
 })
 
-// 尝试读取配置文件，读取失败使用默认配置
-try {
-  const loadedConfig = decodeConfig(route.query['config'] as string)
-  Object.assign(config, loadedConfig)
-  console.log('加载配置:\n' + JSON.stringify(config))
-} catch (e) {
-  message.error('加载配置失败，将使用默认配置文件', 60)
-  console.log('加载配置失败，将使用默认配置文件', e)
-}
-
 let giftConfigMap = new Map()
 
 const leftTimeText = ref('正在初始化……')
 const sendMessageText = ref('等待投喂中……')
 
 onBeforeMount(() => {
-  if (config.gift_list.length <= 0) {
-    message.error('加载配置失败，配置文件不正确', 0)
-    throw new Error('配置文件不正确')
+  const loadedConfig = props.isPreview
+    ? decodeConfig(props.config!)
+    : decodeConfig(route.query['config'] as string)
+
+  if (props.isPreview) {
+    watch(
+      () => props.config!,
+      (newConfig) => {
+        Object.assign(config, decodeConfig(newConfig))
+      }
+    )
+  }
+
+  // 尝试读取配置文件，读取失败使用默认配置
+  try {
+    Object.assign(config, loadedConfig)
+    console.log('加载配置:\n' + JSON.stringify(config))
+  } catch (e) {
+    message.error('加载配置失败，将使用默认配置文件', 60)
+    console.log('加载配置失败，将使用默认配置文件', e)
   }
 })
 
 onMounted(() => {
+  if (config.gift_list.length <= 0) {
+    message.error('加载配置失败，配置文件不正确', 0)
+    throw new Error('配置文件不正确')
+  }
+
   Timer.initializeTimer(config['init_time'], false)
 
   config['gift_list'].forEach((item) => {

@@ -36,6 +36,23 @@ switch (props.op) {
     break
 }
 
+const getGiftTime = (op: string, opValue: number): string => {
+  switch (props.op) {
+    case 'TIME_ADD':
+      return `时间 + ${props.opValue} 秒`
+    case 'TIME_SUB':
+      return (operateText.value = `时间 - ${props.opValue} 秒`)
+    case 'TIME_MCL':
+      return (operateText.value = `时间 x ${props.opValue}`)
+    case 'TIME_DIV':
+      return (operateText.value = `时间 ÷ ${props.opValue}`)
+    case 'TIME_ZERO':
+      return (operateText.value = `时间清零`)
+    default:
+      return 'unknown'
+  }
+}
+
 const handleOp = () => {
   Timer.modifyTime(props.op!, props.opValue!)
 }
@@ -74,7 +91,7 @@ const createImageURL = (giftName: string) => {
       </div>
 
       <div class="gift-time">
-        {{ operateText }}
+        {{ getGiftTime(op, opValue) }}
       </div>
     </a-col>
   </a-row>

@@ -7,6 +7,10 @@ import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 
 import { message } from 'ant-design-vue'
 
+import PreviewComponent from '@/components/PreviewComponent.vue'
+import TimerOBSView from '@/views/obs/TimerOBSView.vue'
+import ClockOBSView from '@/views/obs/ClockOBSView.vue'
+
 const route = useRoute()
 
 const operateOptions = [
@@ -108,7 +112,7 @@ const handleConfigURLChange = () => {
   <a-divider />
 
   <a-row justify="center">
-    <a-col :span="12">
+    <a-col :span="10">
       <a-form :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
         <a-typography-title :level="5">服务器配置(非必要请勿修改)</a-typography-title>
         <a-form-item label="消息服务器地址" name="websocket_server">
@@ -159,6 +163,12 @@ const handleConfigURLChange = () => {
       <a-typography-title :level="5">配置链接</a-typography-title>
 
       <a-textarea v-model:value="configURL" @change="handleConfigURLChange" :rows="6" />
+    </a-col>
+
+    <a-col :span="8" :offset="2">
+      <preview-component>
+        <TimerOBSView :is-preview="true" :config="encodeConfig(config)" style="margin: 0 auto" />
+      </preview-component>
     </a-col>
   </a-row>
 </template>

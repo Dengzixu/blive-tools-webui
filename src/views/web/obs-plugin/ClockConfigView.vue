@@ -4,9 +4,14 @@ import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 import { message } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 
+import PreviewComponent from '@/components/PreviewComponent.vue'
+import ClockOBSView from '@/views/obs/ClockOBSView.vue'
+
 const route = useRoute()
 
 const configURL = ref('')
+
+const previewBackgroundColor = ref<string>('#00a1d7ff')
 
 const config = reactive({
   text: {
@@ -56,7 +61,7 @@ const handleConfigURLChange = () => {
   <a-divider />
 
   <a-row justify="center">
-    <a-col :span="12">
+    <a-col :span="10">
       <a-form :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
         <a-typography-title :level="5">文本配置</a-typography-title>
         <a-form-item label="星期一" name="week1">
@@ -85,6 +90,12 @@ const handleConfigURLChange = () => {
       <a-typography-title :level="5">配置链接</a-typography-title>
 
       <a-textarea v-model:value="configURL" @change="handleConfigURLChange" :rows="6" />
+    </a-col>
+
+    <a-col :span="8" :offset="2">
+      <preview-component>
+        <ClockOBSView :is-preview="true" :config="encodeConfig(config)" />
+      </preview-component>
     </a-col>
   </a-row>
 </template>

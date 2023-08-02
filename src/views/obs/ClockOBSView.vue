@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import { decodeConfig } from '@/utils/plugin-config/config'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
+
+const props = defineProps<{
+  isPreview?: boolean
+  config?: string
+}>()
 
 const route = useRoute()
 
@@ -18,20 +23,33 @@ const config = reactive({
   }
 })
 
-// 尝试读取配置文件，读取失败使用默认配置
-
-console.log(route.query['config'])
-try {
-  const loadedConfig = decodeConfig(route.query['config'] as string)
-  Object.assign(config, loadedConfig)
-  console.log('加载配置:\n' + JSON.stringify(config))
-} catch (e) {
-  message.error('加载配置失败，将使用默认配置文件', 60)
-  console.log('加载配置失败，将使用默认配置文件', e)
-}
-
 const timeText = ref('00:00')
 const dateText = ref('正在初始化……')
+
+// 尝试读取配置文件，读取失败使用默认配置
+onBeforeMount(() => {
+  const loadedConfig = props.isPreview
+    ? decodeConfig(props.config!)
+    : decodeConfig(route.query['config'] as string)
+
+  if (props.isPreview) {
+    watch(
+      () => props.config!,
+      (newConfig) => {
+        Object.assign(config, decodeConfig(newConfig))
+      }
+    )
+  }
+
+  // 尝试读取配置文件，读取失败使用默认配置
+  try {
+    Object.assign(config, loadedConfig)
+    console.log('加载配置:\n' + JSON.stringify(config))
+  } catch (e) {
+    message.error('加载配置失败，将使用默认配置文件', 60)
+    console.log('加载配置失败，将使用默认配置文件', e)
+  }
+})
 
 onMounted(() => {
   const clockInterval = setInterval(() => {
