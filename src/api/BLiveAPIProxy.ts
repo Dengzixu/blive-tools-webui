@@ -3,7 +3,7 @@ import axios from 'axios'
 export default {
   giftConfigProxy() {
     return axios({
-      url: '/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftConfig',
+      url: '/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftConfig',
       baseURL: import.meta.env.VITE_PROXY_URL,
       method: 'get',
       params: {
@@ -27,7 +27,7 @@ export default {
       }
     }
     return axios({
-      url: '/proxy/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftData',
+      url: '/https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftData',
       baseURL: import.meta.env.VITE_PROXY_URL,
       method: 'get',
       params: params
@@ -35,7 +35,7 @@ export default {
   },
   getWebAreaListProxy() {
     return axios({
-      url: '/proxy/https://api.live.bilibili.com/xlive/web-interface/v1/index/getWebAreaList',
+      url: '/https://api.live.bilibili.com/xlive/web-interface/v1/index/getWebAreaList',
       baseURL: import.meta.env.VITE_PROXY_URL,
       method: 'get',
       params: {
