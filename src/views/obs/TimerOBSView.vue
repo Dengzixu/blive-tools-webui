@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount, onMounted, watch } from 'vue'
+import { ref, reactive, onBeforeMount, onMounted, watch, CSSProperties, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 
@@ -8,6 +8,7 @@ import TimerGiftItem from '@/components/obs/timer/TimerGiftItemComponent.vue'
 import Timer from '@/utils/obs-plugin/Timer'
 import Websocket from '@/utils/Websocket'
 import { decodeConfig } from '@/utils/plugin-config/config'
+import { hexToRgba } from '@/utils/ColorUtils'
 
 const route = useRoute()
 
@@ -17,9 +18,16 @@ const props = defineProps<{
 }>()
 
 const config = reactive({
-  websocket_server: 'wss://local.blive-tools.xn--jp8ha.ws:25501/server',
-  image_server: 'https://local.blive-tools.xn--jp8ha.ws:25501',
+  websocket_server: import.meta.env.VITE_WS_SERVER_URL,
+  image_server: import.meta.env.VITE_IMG_SERVER_URL,
   init_time: 7200,
+  style: {
+    font_color: '#ffffff',
+    out_shadow_color: '#646464',
+    out_shadow_transparency: 60,
+    inner_shadow_color: '#646464',
+    inner_shadow_transparency: 60
+  },
   gift_list: [
     {
       gift_name: '辣条',
@@ -126,7 +134,13 @@ const handleResetTimer = () => {
 </script>
 
 <template>
-  <div class="frame">
+  <div
+    class="frame"
+    :style="{
+      background: hexToRgba(config.style.out_shadow_color, config.style.out_shadow_transparency),
+      color: config.style.font_color
+    }"
+  >
     <div class="text-left-time">剩余时间</div>
     <div class="text-left-time-clock" @dblclick="handleResetTimer">{{ leftTimeText }}</div>
 
@@ -138,6 +152,13 @@ const handleResetTimer = () => {
           :op="item['op']"
           :op-value="Number(item['op_value'])"
           :image-server="config['image_server']"
+          :style="{
+            background: hexToRgba(
+              config.style.inner_shadow_color,
+              config.style.inner_shadow_transparency
+            ),
+            color: config.style.font_color
+          }"
         />
       </a-col>
     </a-row>
@@ -156,13 +177,9 @@ const handleResetTimer = () => {
 
   width: 400px;
 
-  background-color: rgba(100, 100, 100, 0.4);
-
   border-radius: 40px;
 
   text-align: center;
-
-  color: #f5f5f5;
 }
 
 .text-left-time {

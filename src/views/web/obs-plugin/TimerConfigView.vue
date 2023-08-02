@@ -9,7 +9,6 @@ import { message } from 'ant-design-vue'
 
 import PreviewComponent from '@/components/PreviewComponent.vue'
 import TimerOBSView from '@/views/obs/TimerOBSView.vue'
-import ClockOBSView from '@/views/obs/ClockOBSView.vue'
 
 const route = useRoute()
 
@@ -40,6 +39,13 @@ const config = reactive({
   websocket_server: import.meta.env.VITE_WS_SERVER_URL,
   image_server: import.meta.env.VITE_IMG_SERVER_URL,
   init_time: 7200,
+  style: {
+    font_color: '#ffffff',
+    out_shadow_color: '#646464',
+    out_shadow_transparency: 60,
+    inner_shadow_color: '#646464',
+    inner_shadow_transparency: 40
+  },
   gift_list: [
     {
       gift_name: '辣条',
@@ -113,7 +119,12 @@ const handleConfigURLChange = () => {
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-form :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
+      <a-form
+        :model="config"
+        :label-col="{ span: 4 }"
+        :wrapper-col="{ span: 24 }"
+        @change="handleFormChange"
+      >
         <a-typography-title :level="5">服务器配置(非必要请勿修改)</a-typography-title>
         <a-form-item label="消息服务器地址" name="websocket_server">
           <a-input v-model:value="config.websocket_server" />
@@ -130,7 +141,12 @@ const handleConfigURLChange = () => {
         </a-form-item>
 
         <a-typography-title :level="5">礼物配置</a-typography-title>
-        <a-space v-for="(gift, index) in config.gift_list" :key="gift.id" align="baseline">
+        <a-space
+          v-for="(gift, index) in config.gift_list"
+          :key="gift.id"
+          align="baseline"
+          style="position: relative"
+        >
           <a-form-item :name="['gift', index, 'name']">
             <a-input v-model:value="gift.gift_name" placeholder="礼物名称" />
           </a-form-item>
@@ -139,7 +155,13 @@ const handleConfigURLChange = () => {
             <a-input v-model:value="gift.num" placeholder="数量" />
           </a-form-item>
 
-          <a-select ref="select" v-model:value="gift.op" :options="operateOptions"></a-select>
+          <a-select
+            ref="select"
+            v-model:value="gift.op"
+            :options="operateOptions"
+            style="width: 300px"
+          ></a-select>
+
 
           <a-form-item :name="['users', index, 'op_value']">
             <a-input
@@ -156,6 +178,23 @@ const handleConfigURLChange = () => {
             <PlusOutlined />
             添加礼物
           </a-button>
+        </a-form-item>
+
+        <a-typography-title :level="5">样式配置</a-typography-title>
+        <a-form-item label="外部阴影颜色" name="out-shadow-color">
+          <a-input type="color" v-model:value="config.style.out_shadow_color" />
+        </a-form-item>
+        <a-form-item label="外部阴影透明度" name="out-shadow-transparency">
+          <a-slider v-model:value="config.style.out_shadow_transparency" :max="100" :min="0" />
+        </a-form-item>
+        <a-form-item label="内部阴影颜色" name="inner-shadow-color">
+          <a-input type="color" v-model:value="config.style.inner_shadow_color" />
+        </a-form-item>
+        <a-form-item label="内部阴影透明度" name="inner-shadow-transparency">
+          <a-slider v-model:value="config.style.inner_shadow_transparency" :max="100" :min="0" />
+        </a-form-item>
+        <a-form-item label="文字颜色" name="font-color">
+          <a-input type="color" v-model:value="config.style.font_color" />
         </a-form-item>
       </a-form>
 
