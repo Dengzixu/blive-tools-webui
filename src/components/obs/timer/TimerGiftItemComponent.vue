@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import Timer from '@/ts/obs/timer/Timer'
+import Timer from '@/utils/obs-plugin/Timer'
 
 const props = defineProps({
   giftName: String,

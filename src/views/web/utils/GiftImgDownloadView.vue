@@ -8,7 +8,7 @@ import type { TableColumnType } from 'ant-design-vue'
 import { DownloadOutlined, SettingOutlined, RedoOutlined } from '@ant-design/icons-vue'
 
 import BLiveAPIProxy from '@/api/BLiveAPIProxy'
-import type { GiftFilter, GiftList, TableDataType } from '@/ts/GiftImgDownload'
+import type { GiftFilter, GiftList, TableDataType } from '@/utils/GiftImgDownload'
 
 // 表格列
 const columns: TableColumnType<TableDataType>[] = [
