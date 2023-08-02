@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { reactive, ref, toRefs, onBeforeMount } from 'vue'
-import { Modal } from 'ant-design-vue'
-import { DownloadOutlined, SettingOutlined, RedoOutlined } from '@ant-design/icons-vue'
-
+import { reactive, ref, onMounted } from 'vue'
 import axios from 'axios'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import { Modal } from 'ant-design-vue'
+import type { TableColumnType } from 'ant-design-vue'
+import { DownloadOutlined, SettingOutlined, RedoOutlined } from '@ant-design/icons-vue'
 
 import BLiveAPIProxy from '@/api/BLiveAPIProxy'
+import type { GiftFilter, GiftList, TableDataType } from '@/ts/GiftImgDownload'
 
 // 表格列
-const columns = [
+const columns: TableColumnType<TableDataType>[] = [
   {
     title: '礼物 ID',
     dataIndex: 'id',
     width: '120px',
     defaultSortOrder: 'ascend',
-    sorter: (a: any, b: any) => a.id - b.id
+    sorter: (a: TableDataType, b: TableDataType) => a.id - b.id
   },
   {
     title: '图片',
@@ -45,39 +46,33 @@ const columns = [
 ]
 
 // 过滤器
-const filter = reactive({
+const filter = reactive<GiftFilter>({
   all: true,
-  roomID: 0,
+  room_id: 0,
   coin_type: {
     gold: true,
     silver: true
   },
-  selectArea: []
+  select_area: []
 })
 
 // 礼物列表
-const giftList = reactive({
+const giftList = reactive<GiftList>({
   original: [],
   filtered: [],
   map_all: new Map()
-})
-
-const state = reactive<{
-  selectedRowKeys: any
-}>({
-  selectedRowKeys: []
 })
 
 // 分区列表
 const areaList = ref([])
 
 // 加载状态
-const onLoading = ref(false)
+const onLoading = ref<boolean>(false)
 
 // 直播间 ID
-const roomID = ref(0)
+const roomID = ref<number>(0)
 
-onBeforeMount(() => {
+onMounted(() => {
   loadGiftData()
 })
 
@@ -109,7 +104,7 @@ const loadGiftData = () => {
     })
     .catch((e: any) => {
       Modal.error({
-        title: '请求失败',
+        title: '礼物列表加载失败',
         content: e.response ? e.response : '网络错误'
       })
 
@@ -127,7 +122,7 @@ const loadGiftData = () => {
     })
     .catch((e: any) => {
       Modal.error({
-        title: '请求失败',
+        title: '分区列表加载失败',
         content: e.response ? e.response : '网络错误'
       })
     })
@@ -142,9 +137,9 @@ const handleFilter = () => {
   // 这部分处理 room 过滤器
   if (!filter.all) {
     BLiveAPIProxy.giftDataProxy(
-      Number(roomID.value),
-      Number(filter.selectArea[1]),
-      Number(filter.selectArea[0])
+      roomID.value,
+      Number(filter.select_area[1]),
+      Number(filter.select_area[0])
     ).then((r: any) => {
       // Response Body
       const responseBody = r.data
@@ -197,13 +192,6 @@ const handleFilter = () => {
       giftList.filtered = giftList.filtered.filter((item) => String(item['coin_type']) === 'silver')
     }
   }
-}
-
-/**
- * 处理表单选中项
- */
-const handleSelectedChange = (selectedRowKeys: any) => {
-  state.selectedRowKeys = selectedRowKeys
 }
 
 /**
@@ -318,7 +306,7 @@ const handleDownloadAll = (list: any, imageType = 'png') => {
 
         <a-form-item label="分区">
           <a-cascader
-            v-model:value="filter.selectArea"
+            v-model:value="filter.select_area"
             :field-names="{ label: 'name', value: 'id', children: 'list' }"
             :options="areaList"
             :disabled="filter.all"
@@ -371,13 +359,7 @@ const handleDownloadAll = (list: any, imageType = 'png') => {
     </a-button>
   </div>
 
-  <a-table
-    :columns="columns"
-    :data-source="giftList.filtered"
-    row-key="id"
-    :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: handleSelectedChange }"
-    :loading="onLoading"
-  >
+  <a-table :columns="columns" :data-source="giftList.filtered" row-key="id" :loading="onLoading">
     <template #bodyCell="{ text, record, column }">
       <template v-if="column.dataIndex === 'img_basic'">
         <a-image :src="text" width="60px"></a-image>
