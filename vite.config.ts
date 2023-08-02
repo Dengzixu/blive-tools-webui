@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import viteCompression from 'vite-plugin-compression'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -7,6 +8,9 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [
     vue(),
+    viteCompression({
+      threshold: 1024 * 512 // 大于 512KB
+    })
   ],
   resolve: {
     alias: {
@@ -24,7 +28,8 @@ export default defineConfig({
           antdv: ['ant-design-vue'],
           antdv_icon: ['@ant-design/icons-vue']
         },
-        sourcemap: false,
+        compact: true,
+        sourcemap: false
       }
     }
   }
