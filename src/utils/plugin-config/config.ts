@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64'
 import { deflate, inflate } from 'pako'
 
 export const encodeConfig = (configObject: Object, urlSafe = true): string => {
-  const deflatedArray: Uint8Array = deflate(JSON.stringify(configObject))
+  const deflatedArray = deflate(JSON.stringify(configObject))
   return Base64.fromUint8Array(deflatedArray, urlSafe)
 }
 
@@ -16,7 +16,7 @@ export const decodeConfig = (configString: string): Object => {
 
 export const decodeURLConfig = (urlConfigString: string): Object => {
   try {
-    const url = new URL(urlConfigString)
+    const url = new URL(urlConfigString.replace('#', ''))
 
     const configParam: string | null = new URLSearchParams(url.search).get('config')
 

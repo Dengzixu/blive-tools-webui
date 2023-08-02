@@ -2,6 +2,9 @@
 import { onMounted, reactive, ref } from 'vue'
 import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 import { message } from 'ant-design-vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const configURL = ref('')
 
@@ -25,10 +28,14 @@ onMounted(() => {
  * 处理表单更改
  */
 const handleFormChange = () => {
-  configURL.value = window.location.origin + '/#/obs/clock?config=' + encodeConfig(config)
+  configURL.value =
+    window.location.href.replace(route.fullPath, '') + '/obs/clock?config=' + encodeConfig(config)
 }
 
 const handleConfigURLChange = () => {
+  if (!configURL.value) {
+    return
+  }
   try {
     const readConfig = decodeURLConfig(configURL.value)
 

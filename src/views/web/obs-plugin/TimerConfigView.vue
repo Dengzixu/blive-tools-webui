@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { useRoute } from 'vue-router'
 
 import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 
 import { message } from 'ant-design-vue'
+
+const route = useRoute()
 
 const operateOptions = [
   {
@@ -45,7 +48,6 @@ const config = reactive({
 })
 
 const configURL = ref('')
-const historyConfigURL = ref('')
 
 onMounted(() => {
   handleFormChange()
@@ -55,7 +57,8 @@ onMounted(() => {
  * 处理表单更改
  */
 const handleFormChange = () => {
-  configURL.value = window.location.origin + '/#/obs/timer?config=' + encodeConfig(config)
+  configURL.value =
+    window.location.href.replace(route.fullPath, '') + '/obs/timer?config=' + encodeConfig(config)
 }
 
 /**
@@ -83,6 +86,9 @@ const handleRemoveGift = (gift: any) => {
 }
 
 const handleConfigURLChange = () => {
+  if (!configURL.value) {
+    return
+  }
   try {
     const readConfig = decodeURLConfig(configURL.value)
     console.log('读取到配置文件:\n' + JSON.stringify(readConfig))
