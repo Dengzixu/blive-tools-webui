@@ -120,7 +120,6 @@ const handleConfigURLChange = () => {
   <a-row justify="center">
     <a-col :span="10">
       <a-form
-        :model="config"
         :label-col="{ span: 3 }"
         :wrapper-col="{ span: 24 }"
         @change="handleFormChange"
