@@ -3,13 +3,13 @@ import { ref } from 'vue'
 
 import Timer from '@/utils/obs-plugin/Timer'
 
-const props = defineProps({
-  giftName: String,
-  num: Number,
-  op: String,
-  opValue: Number,
-  imageServer: String
-})
+const props = defineProps<{
+  giftName: string
+  num: number
+  op: string
+  opValue: number
+  imageServer: string
+}>()
 
 let operateText = ref('')
 
@@ -61,7 +61,7 @@ const createImageURL = (giftName: string) => {
   <a-row class="gift-frame" justify="center" @dblclick="handleOp">
     <a-col :xs="8">
       <div class="gift-image">
-        <img class="gift-image" :src="createImageURL(giftName as string)" alt="礼物图片" />
+        <img class="gift-image" :src="createImageURL(giftName)" alt="礼物图片" />
       </div>
     </a-col>
 
