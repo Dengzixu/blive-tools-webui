@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config'
+import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 import { message } from 'ant-design-vue'
 
 const configURL = ref('')

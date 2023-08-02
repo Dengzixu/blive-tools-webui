@@ -2,7 +2,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
 
-import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config'
+import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 
 import { message } from 'ant-design-vue'
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { decodeConfig } from '@/utils/plugin-config'
+import { decodeConfig } from '@/utils/plugin-config/config'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 

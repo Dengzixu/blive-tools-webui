@@ -7,7 +7,7 @@ import TimerGiftItem from '@/components/obs/timer/TimerGiftItemComponent.vue'
 
 import Timer from '@/ts/obs/timer/Timer'
 import Websocket from '@/utils/Websocket'
-import { decodeConfig } from '@/utils/plugin-config'
+import { decodeConfig } from '@/utils/plugin-config/config'
 
 const route = useRoute()
 
