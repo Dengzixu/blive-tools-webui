@@ -119,11 +119,7 @@ const handleConfigURLChange = () => {
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-form
-        :label-col="{ span: 3 }"
-        :wrapper-col="{ span: 24 }"
-        @change="handleFormChange"
-      >
+      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
         <a-typography-title :level="5">服务器配置(非必要请勿修改)</a-typography-title>
         <a-form-item label="消息服务器" name="websocket_server">
           <a-input v-model:value="config.websocket_server" />

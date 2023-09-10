@@ -81,8 +81,10 @@ onMounted(() => {
   })
 
   // 创建 WebSocket 链接
-  try {
-    Websocket.connect(config.websocket_server, (message: any) => {
+
+  Websocket.connect(
+    config.websocket_server,
+    (message: any) => {
       let convertGiftName = ''
 
       // 处理礼物
@@ -117,10 +119,11 @@ onMounted(() => {
 
         sendMessageText.value = `感谢 ${message['userMetadata']['username']} 赠送 ${convertGiftName} x ${message['content']['num']}`
       }
-    })
-  } catch (e) {
-    message.error('无法连接至服务器，请刷新再试', 0)
-  }
+    },
+    () => {
+      message.error('无法连接至服务器，请刷新再试', 0)
+    }
+  )
 })
 
 const timerInterval = setInterval(() => {
