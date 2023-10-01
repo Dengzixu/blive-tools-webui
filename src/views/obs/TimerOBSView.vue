@@ -88,14 +88,14 @@ onMounted(() => {
       let convertGiftName = ''
 
       // 处理礼物
-      if (message['message'] === 'SEND_GIFT') {
-        convertGiftName = message['content']['giftName']
+      if (message['message_type'] === 'SEND_GIFT') {
+        convertGiftName = message['content']['gift_name']
       }
 
       // 处理上舰
       if (message['message'] === 'GUARD_BUY') {
         // 由于购买舰长是另一个消息类型，所以需要单独处理
-        switch (message['content']['guardLevel']) {
+        switch (message['content']['guard_level']) {
           case 1:
             convertGiftName = '总督'
             break
@@ -117,7 +117,7 @@ onMounted(() => {
 
         Timer.modifyTime(config['op'], newOpValue)
 
-        sendMessageText.value = `感谢 ${message['userMetadata']['username']} 赠送 ${convertGiftName} x ${message['content']['num']}`
+        sendMessageText.value = `感谢 ${message['metadata']['user_info']['username']} 赠送 ${convertGiftName} x ${message['content']['num']}`
       }
     },
     () => {
