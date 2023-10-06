@@ -1,45 +1,26 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { encodeConfig, decodeURLConfig } from '@/utils/plugin-config/config'
 import { message } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 
 import PreviewComponent from '@/components/PreviewComponent.vue'
 import ClockOBSView from '@/views/obs/ClockOBSView.vue'
+import { getDefaultProfile } from '@/ts/profiles/ClockProfiles'
+import type { ClockProfiles } from '@/ts/profiles/ClockProfiles'
 
 const route = useRoute()
 
 const configURL = ref('')
 
-const previewBackgroundColor = ref<string>('#00a1d7ff')
-
-const config = reactive({
-  text: {
-    1: '星期一',
-    2: '星期二',
-    3: '星期三',
-    4: '星期四',
-    5: '星期五',
-    6: '星期六',
-    0: '星期日'
-  },
-  style: {
-    shadow_color: '#ff9b7f',
-    font_color: '#ffffff'
-  }
-})
+const config = reactive<ClockProfiles>(getDefaultProfile())
 
 onMounted(() => {
-  handleFormChange()
+  watch(config, () => {
+    configURL.value =
+      window.location.href.replace(route.fullPath, '') + '/obs/clock?config=' + encodeConfig(config)
+  })
 })
-
-/**
- * 处理表单更改
- */
-const handleFormChange = () => {
-  configURL.value =
-    window.location.href.replace(route.fullPath, '') + '/obs/clock?config=' + encodeConfig(config)
-}
 
 const handleConfigURLChange = () => {
   if (!configURL.value) {
@@ -66,7 +47,7 @@ const handleConfigURLChange = () => {
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
+      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }">
         <a-typography-title :level="5">文本配置</a-typography-title>
         <a-form-item label="星期一" name="week1">
           <a-input v-model:value="config.text[1]" />

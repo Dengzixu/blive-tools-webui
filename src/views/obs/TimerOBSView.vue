@@ -9,6 +9,7 @@ import Timer from '@/utils/obs-plugin/Timer'
 import Websocket from '@/utils/Websocket'
 import { decodeConfig } from '@/utils/plugin-config/config'
 import { hexToRgba } from '@/utils/ColorUtils'
+import type { TimerProfiles } from '@/ts/profiles/TimerProfiles'
 
 const route = useRoute()
 
@@ -17,7 +18,7 @@ const props = defineProps<{
   config?: string
 }>()
 
-const config = reactive({
+const config = reactive<TimerProfiles>({
   websocket_server: import.meta.env.VITE_WS_SERVER_URL,
   image_server: import.meta.env.VITE_IMG_SERVER_URL,
   init_time: 7200,

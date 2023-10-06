@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+<script setup lang="ts" xmlns:a-col="http://www.w3.org/1999/html">
+import { reactive, ref, onMounted, watch } from 'vue'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 
@@ -9,6 +9,9 @@ import { message } from 'ant-design-vue'
 
 import PreviewComponent from '@/components/PreviewComponent.vue'
 import TimerOBSView from '@/views/obs/TimerOBSView.vue'
+
+import type { TimerProfiles } from '@/ts/profiles/TimerProfiles'
+import { getDefaultProfile } from '@/ts/profiles/TimerProfiles'
 
 const route = useRoute()
 
@@ -35,32 +38,17 @@ const operateOptions = [
   }
 ]
 
-const config = reactive({
-  websocket_server: import.meta.env.VITE_WS_SERVER_URL,
-  image_server: import.meta.env.VITE_IMG_SERVER_URL,
-  init_time: 7200,
-  style: {
-    font_color: '#ffffff',
-    out_shadow_color: '#646464',
-    out_shadow_transparency: 60,
-    inner_shadow_color: '#646464',
-    inner_shadow_transparency: 40
-  },
-  gift_list: [
-    {
-      gift_name: '辣条',
-      num: 1,
-      op: 'TIME_ADD',
-      op_value: 1,
-      id: Date.now()
-    }
-  ]
-})
+const config = reactive<TimerProfiles>(getDefaultProfile())
 
 const configURL = ref('')
 
 onMounted(() => {
+  // 用来保证 配置连接在页面加载出来的时候有内容
   handleFormChange()
+
+  watch(config, () => {
+    handleFormChange()
+  })
 })
 
 /**
@@ -119,7 +107,7 @@ const handleConfigURLChange = () => {
 
   <a-row justify="center">
     <a-col :span="10">
-      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }" @change="handleFormChange">
+      <a-form :label-col="{ span: 3 }" :wrapper-col="{ span: 24 }">
         <a-typography-title :level="5">服务器配置(非必要请勿修改)</a-typography-title>
         <a-form-item label="消息服务器" name="websocket_server">
           <a-input v-model:value="config.websocket_server" />
@@ -131,41 +119,62 @@ const handleConfigURLChange = () => {
 
         <a-typography-title :level="5">时间配置</a-typography-title>
 
-        <a-form-item label="初始时间" name="init_time">
+        <a-form-item label="初始时间（秒）" name="init_time">
           <a-input v-model:value="config.init_time" />
         </a-form-item>
 
         <a-typography-title :level="5">礼物配置</a-typography-title>
-        <a-space
-          v-for="(gift, index) in config.gift_list"
-          :key="gift.id"
-          align="baseline"
-          style="position: relative"
-        >
-          <a-form-item :name="['gift', index, 'name']">
-            <a-input v-model:value="gift.gift_name" placeholder="礼物名称" />
-          </a-form-item>
 
-          <a-form-item :name="['users', index, 'num']">
-            <a-input v-model:value="gift.num" placeholder="数量" />
-          </a-form-item>
+        <a-row :gutter="8">
+          <template v-for="(gift, index) in config.gift_list" :key="gift.id">
+            <a-col :span="6">
+              <a-form-item :name="['gift', index, 'name']" :labelCol="{ span: 0 }" label="礼物名称">
+                <a-input v-model:value="gift.gift_name" placeholder="礼物名称" />
+              </a-form-item>
+            </a-col>
 
-          <a-select
-            ref="select"
-            v-model:value="gift.op"
-            :options="operateOptions"
-            style="width: 300px"
-          ></a-select>
+            <a-col :span="6">
+              <a-form-item :name="['users', index, 'num']" :labelCol="{ span: 0 }" label="礼物数量">
+                <a-input v-model:value="gift.num" placeholder="礼物数量" />
+              </a-form-item>
+            </a-col>
 
-          <a-form-item :name="['users', index, 'op_value']">
-            <a-input
-              v-model:value="gift.op_value"
-              placeholder="变化量(时间加减为秒，乘除为倍数，清零忽略)"
-            />
-          </a-form-item>
+            <a-col :span="4">
+              <a-form-item
+                :name="['users', index, 'operate']"
+                :labelCol="{ span: 0 }"
+                label="礼物操作"
+              >
+                <a-select
+                  ref="select"
+                  v-model:value="gift.op"
+                  :options="operateOptions"
+                  style="min-width: 100%"
+                ></a-select>
+              </a-form-item>
+            </a-col>
 
-          <MinusCircleOutlined @click="handleRemoveGift(gift)" />
-        </a-space>
+            <a-col :span="6">
+              <a-form-item
+                :name="['users', index, 'op_value']"
+                :labelCol="{ span: 0 }"
+                label="变化值"
+              >
+                <a-input
+                  v-model:value="gift.op_value"
+                  placeholder="变化量(时间加减为秒，乘除为倍数，清零忽略)"
+                />
+              </a-form-item>
+            </a-col>
+
+            <a-col :span="2">
+              <a-button type="primary" danger block @click="handleRemoveGift(gift)">
+                <MinusCircleOutlined />
+                删除
+              </a-button>
+            </a-col>
+          </template>
+        </a-row>
 
         <a-form-item>
           <a-button type="dashed" block @click="handleAddGift">

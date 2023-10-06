@@ -3,6 +3,8 @@ import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import { decodeConfig } from '@/utils/plugin-config/config'
 import { useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { getDefaultProfile } from '@/ts/profiles/ClockProfiles'
+import type { ClockProfiles } from '@/ts/profiles/ClockProfiles'
 
 const props = defineProps<{
   isPreview?: boolean
@@ -11,21 +13,7 @@ const props = defineProps<{
 
 const route = useRoute()
 
-const config = reactive({
-  text: {
-    1: '星期一',
-    2: '星期二',
-    3: '星期三',
-    4: '星期四',
-    5: '星期五',
-    6: '星期六',
-    0: '星期日'
-  },
-  style: {
-    shadow_color: '#ff9b7f',
-    font_color: '#ffffff'
-  }
-})
+const config = reactive<ClockProfiles>(getDefaultProfile())
 
 const timeText = ref('00:00')
 const dateText = ref('正在初始化……')
